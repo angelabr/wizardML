@@ -1,41 +1,42 @@
 {% load static %}
 <link rel="stylesheet" type="text/css" href="{% static 'ml/style.css' %}" />
 {% if dataset %}
-<h1>Dataset: {{dataset.dataset_name}}</h1>
-<table>
+<form action="{% url 'ml:confirm'%}" method="post" enctype="multipart/form-data">{% csrf_token %}
+  <h1>Dataset: {{dataset.dataset_name}}</h1>
+  <table>
     <tr>
     	<th>Labels</th>
-    {% for label in labels %}
-        <th>{{label}}</th>
-    {% endfor %}
-	</tr>
-	<tr>
-	    <td>Ignore</td>
-        {% for label in labels_content %}
-            <td><input name="ignore" type="checkbox" value="{{ label.pk }}"></td>
-        {% endfor %}
+      {% for label in labels %}
+      <th>{{label}}</th>
+      {% endfor %}
     </tr>
     <tr>
-        <td>Target</td>
-        {% for label in labels_content %}
-            <td><input name="target" type="radio" value="{{ label.pk }}"></td>
-        {% endfor %}
-	</tr>
-	 </table> 
-	<div class="content">
-    <table> 
-	{% for row in samples %}
-	<tr>
-		<td>  </td>
-		{% for sample in row %}	
-            <td>{{sample}}</td> 
-	    {% endfor %}
-	</tr>
+     <td>Ignore</td>
+     {% for label in labels_content %}
+     <td><input name="ignore" type="checkbox" value="{{ label.pk }}"></td>
+     {% endfor %}
+   </tr>
+   <tr>
+    <td>Target</td>
+    {% for label in labels_content %}
+    <td><input name="target" type="radio" value="{{ label.pk }}"></td>
     {% endfor %}
+  </tr>
+</table> 
+<div class="content">
+  <table> 
+   {% for row in samples %}
+   <tr>
+    <td>  </td>
+    {% for sample in row %}	
+    <td>{{sample}}</td> 
+    {% endfor %}
+  </tr>
+  {% endfor %}
 </table>
 </div>
 Percetanges of data for training,evaluation and test:
-<select>
+<select name="percentages">
   <option value="na">Not sure</option>
   <option value="60-20-20">60%-20%-20%</option>
   <option value="80-10-10">80%-10%-10%</option>
@@ -43,8 +44,10 @@ Percetanges of data for training,evaluation and test:
 </select>
 <br>
 I want to perform a: 
-<select>
-  <option value="pr">Prediction</option>
-  <option value="cl">Classification</option>
-</select>        
+<select name="purpose">
+  <option value="PR">Prediction</option>
+  <option value="CL">Classification</option>
+</select> 
+<input type="submit" value="Continue" />
+</form>        
 {% endif %}
