@@ -1,1 +1,44 @@
-TRAININGS
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'ml/style.css' %}" />
+The experiment had an accuracy of: {{accuracy}}%.
+<div class="content">
+	<table> 
+		<th>Data tested</th>
+   {% for row in test_data %}
+   <tr>
+    <td>  </td>
+    {% for sample in row %}	
+    <td>{{sample}}</td> 
+    {% endfor %}
+  </tr>
+  {% endfor %}
+</table>
+</div>
+<div class="content">
+	<table> 
+		<th>Results</th>
+    <tr>
+    <td>  </td>
+    {% for sample in predict_data %}	
+    <td>{{sample}}</td> 
+    {% endfor %}
+  </tr>
+</table>
+</div>
+
+<div class="content">
+	<table> 
+		<th>EXPS</th>
+    <tr>
+    <td>  </td>
+    {% for row in explanation %}	
+       <tr>
+    <td>  </td>
+    {% for sample in row %}	
+    <td>{{sample}}</td> 
+    {% endfor %}
+  </tr>
+    {% endfor %}
+  </tr>
+</table>
+</div>
