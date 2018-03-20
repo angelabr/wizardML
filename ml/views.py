@@ -26,6 +26,12 @@ from sklearn.decomposition import PCA
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import VotingClassifier
+import six
+import plotly.plotly as py
+import plotly.graph_objs as go
+import plotly.offline as opy
+
+
 
 
 
@@ -79,10 +85,11 @@ def results(request):
             label_ids.append(lbl.id)            
 
         #list of labels with content
-        request.session['labels'] = label_ids
-        labels_content = []
         labels_content = Label.objects.filter(dataset_id=dst.id).order_by('pk')
-
+        ordered = []
+        for l in labels_content:
+            ordered.append(l.id)
+        request.session['labels'] = ordered
         context = {'labels': labels, 'labels_content': labels_content, 'dataset': dst, 'samples': samples}
 
         return render(request, 'ml/results.html', context)
@@ -129,9 +136,10 @@ def confirm(request):
 def train(request):
 
     if request.POST:
-
+        #get the whole dataset raw for easier processing
         total = pandas.read_json(request.session['dstfile'], orient='records')
 
+        #y for labels, x for features
         y = total[[request.session['target']]]
         sub = total.drop(request.session['target'], 1)
         if request.session['ignored']:
@@ -139,46 +147,65 @@ def train(request):
                 sub = sub.drop(ig, 1)
         x = sub
 
+        #scaling for better resaults
         sc = StandardScaler()
         x = sc.fit_transform(x)
 
-
+        #datas
         x2_train, x2_test, y2_train, y2_test = train_test_split(sub, y, test_size = ((Dataset.objects.get(id = request.session['dataset']).test_percent)/100))
-
         x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = ((Dataset.objects.get(id = request.session['dataset']).test_percent)/100))
-
+        #models
         model = SVC(probability = True)
         model.fit(x_train, y_train) 
 
         model2 = SVC(probability = True)
         model2.fit(x2_train, y2_train) 
         
-        
+        #testing and predictions
         predict_data = model.predict(x_test)
-
-        #print confusion matrix and accuracy score
         predict = accuracy_score(y_test, predict_data)*100
-        print(predict*100)
-        #print(X_test)
-        #print(predict_data)
 
-        #predict_data = model.predict(numpy.array([[8.1, 0.56, 0.28, 1.7, 0.368, 16.0, 56.0, 0.9968, 3.11, 1.28, 9.3]]))
-        print(x2_test)
-        # 8.1 0.56    0.28    1.7 0.368   16.0    56.0    0.9968  3.11    1.28    9.3 5
-        #acc = accuracy_score(y_test, predict_data)
-        #print (acc)
-
+        #Example for testing
+        #fixed acidity,volatile acidity,citric acid,residual sugar,chlorides,free sulfur dioxide,total sulfur dioxide,density,pH,sulphates,alcohol,quality        
+        #          7.0,             0.49,      0.49,           5.6,     0.06,               26.0,               121.0, 0.9974,3.34,   0.76,    10.5,     5
+        #         11.2,             0.28,      0.56,           1.9,    0.075,               17.0,                60.0,  0.998,3.16,   0.58,     9.8,     6
         features = []
         label_ids = request.session['labels'] 
+
+        #select labels that will be used
         for ids in label_ids:
-           lbl = Label.objects.get(id=ids)  
-           features.append(lbl.label_name)
-        explainer = lime.lime_tabular.LimeTabularExplainer(x2_test, feature_names=features, class_names=request.session['target'],discretize_continuous=False)
+           lbl = Label.objects.get(id=ids)
+           if (lbl.label_name not in request.session['target']) and (lbl.label_name not in request.session['ignored']):   
+                features.append(lbl.label_name)
 
-        i = numpy.random.randint(0, len(x2_test))
-        exp = explainer.explain_instance(x2_test.iloc[i], model2.predict_proba, num_features=Dataset.objects.get(id = request.session['dataset']).labels_number-1)
-        print(exp.as_list())
+        result, proba = 0, []        
+        analyse = []
+        tmp = six.StringIO()
+        div = six.StringIO()
 
-        context = {'accuracy': predict, 'predict_data': predict_data, 'test_data': x2_test.values, 'explanation': exp.as_list()}
+        #labels for results analysis
+        if request.POST.get(list(sub)[0]):
+            for l in list(sub):
+                analyse.append(float(request.POST.get(l)))   
+
+            result = model2.predict(numpy.array([analyse]))
+            proba = model2.predict_proba(numpy.array([analyse]))
+            #LIME explanator
+            explainer = lime.lime_tabular.LimeTabularExplainer(x2_train, feature_names=features, class_names=request.session['target'], discretize_continuous=False)
+            df = pandas.Series(list(analyse), list(sub), name='001')
+            exp2 = explainer.explain_instance(df, model2.predict_proba, num_features=len(list(sub)))
+            fig = exp2.as_pyplot_figure()
+            tmp = six.StringIO()
+            fig.savefig(tmp, format='svg', bbox_inches='tight')
+            #Labels probabilities
+            targets = set(numpy.array(total[request.session['target']]))
+            data = [go.Bar(x=list(proba.flatten()),y=list(targets),orientation = 'h')]
+
+            layout=go.Layout(title="Probabilities", xaxis={'title':'Percentage'}, yaxis={'title': request.session['target']})
+            fig2 = go.Figure(data=data, layout=layout)
+            div = opy.plot(fig2, auto_open=False, output_type='div')
+
+        context = {'accuracy': predict, 'predict_data': predict_data, 'test_data': x2_test.values, 'svg': tmp.getvalue(), 'labels': list(sub), 'target': request.session['target'],
+        'result': result, 'proba': proba, 'svg2': div }
 
     return render(request, 'ml/train.html', context)
