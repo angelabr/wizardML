@@ -3,55 +3,115 @@
 <h2>Training finished</h2>
 The experiment had an accuracy of: {{accuracy}}%.
 <div class="content">
+	<h2>Data tested</h2>
 	<table> 
-		<th>Data tested</th>
-   {% for row in test_data %}
-   <tr>
-    <td>  </td>
-    {% for sample in row %}	
-    <td>{{sample}}</td> 
-    {% endfor %}
-  </tr>
-  {% endfor %}
-</table>
+		<tr>
+			{% for label in labels %}
+			<th>{{label}}</th>
+			{% endfor %}
+		</tr>
+		{% for row in test_data %}
+		<tr>
+			<td>  </td>
+			{% for sample in row %}	
+			<td>{{sample}}</td> 
+			{% endfor %}
+		</tr>
+		{% endfor %}
+	</table>
 </div>
-<div class="content">
 	<table> 
 		<th>Results</th>
-    <tr>
-    <td>  </td>
-    {% for sample in predict_data %}	
-    <td>{{sample}}</td> 
-    {% endfor %}
-  </tr>
-</table>
-</div>
+		<tr>
+			<td>  </td>
+			{% for sample in predict_data %}	
+			<td>{{sample}}</td> 
+			{% endfor %}
+		</tr>
+	</table>
+
 
 <form action="{% url 'ml:train'%}" method="post" enctype="multipart/form-data">{% csrf_token %}
 	<h2> Analyse individual data:</h2>
 	{% for l in labels %}
-		<a>{{l}}</a><input name="{{l}}" type="text">
+	<a>{{l}}</a><input name="{{l}}" type="text">
 	{% endfor %}
-    <input type="submit" value="Evaluate" />
+	<input type="submit" value="Evaluate" />
 </form>	
 
+<form action="{% url 'ml:train'%}" method="post" enctype="multipart/form-data">{% csrf_token %}
+	<h2> Analyse data from file:</h2>
+	<input type="file" name="csv_evaluate" />
+	<input type="submit" value="Evaluate" />
+</form>	
+
+{% if way == 1 %}
 <h2>Results</h2>
-{% if result %}
 The predicted {{target}} is: {{result}}
+Data analysed: {{analyse}}
 With these probabilities: {{proba}}
 {% endif %}
 
+{% if way == 2 %}
+<form action="{% url 'ml:train'%}" method="post" enctype="multipart/form-data">{% csrf_token %}
+<h2>Results</h2>
+<div class="content">
+	<table> 
+		<th>Results</th>
+		<tr>
+			{% for sample in result %}	
+			<td>{{sample}}</td> 
+			{% endfor %}
+		</tr>
+		<tr>
+			{% for sample in proba %}	
+			<td>{{sample}}</td> 
+			{% endfor %}
+		</tr>
+	</table>
+</div>
+<div class="content">
+	<table> 
+		<tr>
+			{% for label in labels %}
+			<th>{{label}}</th>
+			{% endfor %}
+		</tr>
+		<tr>
+			<td>  </td>
+					{% for row in analyse_data %}
+		<tr><td>
+		<td><input name="results" type="radio" value="{{ forloop.counter }}">{% for sample in row %}	
+			{{sample}}
+			{% endfor %}</td>
+			
+		</td> </tr>
+		{% endfor %}
+		</tr>
+				<tr>
+			<td>  </td>
+			</tr>
+	</table>
+</div>
+<input type="submit" value="Get analysis" />
+</form>
+{% endif %}
+
 {% if svg %}
+The predicted {{target}} is: {{result}}
+Data analysed: {{analyse_data}}
+With these probabilities: {{proba}}
 <div style="width:34em;height:27em">
-  {% autoescape off %}
-  {{ svg }}
-  {% endautoescape %}
+	{% autoescape off %}
+	{{ svg }}
+	{% endautoescape %}
 </div>
 {% endif %}
+
 {% if svg2 %}
 <div style="width:30em;height:23em">
-  {% autoescape off %}
-  {{ svg2 }}
-  {% endautoescape %}
+	{% autoescape off %}
+	{{ svg2 }}
+	{% endautoescape %}
 </div>
 {% endif %}

@@ -32,10 +32,6 @@ import plotly.graph_objs as go
 import plotly.offline as opy
 
 
-
-
-
-
 #index page
 def index(request):
     return render(request, 'ml/index.html', locals())
@@ -145,27 +141,20 @@ def train(request):
         if request.session['ignored']:
             for ig in request.session['ignored']:
                 sub = sub.drop(ig, 1)
-        x = sub
-
-        #scaling for better resaults
-        sc = StandardScaler()
-        x = sc.fit_transform(x)
-
+        x = sub.sort_index(axis=1)
+        x = sub      
+ 
         #datas
-        x2_train, x2_test, y2_train, y2_test = train_test_split(sub, y, test_size = ((Dataset.objects.get(id = request.session['dataset']).test_percent)/100))
-        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = ((Dataset.objects.get(id = request.session['dataset']).test_percent)/100))
+        x2_train, x2_test, y2_train, y2_test = train_test_split(x, y, test_size = ((Dataset.objects.get(id = request.session['dataset']).test_percent)/100))
         #models
-        model = SVC(probability = True)
-        model.fit(x_train, y_train) 
-
         model2 = SVC(probability = True)
         model2.fit(x2_train, y2_train) 
         
         #testing and predictions
-        predict_data = model.predict(x_test)
-        predict = accuracy_score(y_test, predict_data)*100
+        predict_data = model2.predict(x2_test)
+        predict = accuracy_score(y2_test, predict_data)*100
 
-        #Example for testing
+        #Examples for testing
         #fixed acidity,volatile acidity,citric acid,residual sugar,chlorides,free sulfur dioxide,total sulfur dioxide,density,pH,sulphates,alcohol,quality        
         #          7.0,             0.49,      0.49,           5.6,     0.06,               26.0,               121.0, 0.9974,3.34,   0.76,    10.5,     5
         #         11.2,             0.28,      0.56,           1.9,    0.075,               17.0,                60.0,  0.998,3.16,   0.58,     9.8,     6
@@ -178,18 +167,23 @@ def train(request):
            if (lbl.label_name not in request.session['target']) and (lbl.label_name not in request.session['ignored']):   
                 features.append(lbl.label_name)
 
+        #some initializations        
         result, proba = 0, []        
         analyse = []
         tmp = six.StringIO()
         div = six.StringIO()
+        way = 0
 
         #labels for results analysis
+        #IF DATA HAS BEEN INTRODUCED MANUALLY
         if request.POST.get(list(sub)[0]):
             for l in list(sub):
-                analyse.append(float(request.POST.get(l)))   
+                analyse.append(float(request.POST.get(l)))
 
+            #sc = StandardScaler()
             result = model2.predict(numpy.array([analyse]))
             proba = model2.predict_proba(numpy.array([analyse]))
+
             #LIME explanator
             explainer = lime.lime_tabular.LimeTabularExplainer(x2_train, feature_names=features, class_names=request.session['target'], discretize_continuous=False)
             df = pandas.Series(list(analyse), list(sub), name='001')
@@ -197,15 +191,64 @@ def train(request):
             fig = exp2.as_pyplot_figure()
             tmp = six.StringIO()
             fig.savefig(tmp, format='svg', bbox_inches='tight')
+
             #Labels probabilities
             targets = set(numpy.array(total[request.session['target']]))
             data = [go.Bar(x=list(proba.flatten()),y=list(targets),orientation = 'h')]
+            layout=go.Layout(title="Probabilities", xaxis={'title':'Percentage'}, yaxis={'title': request.session['target']})
+            fig2 = go.Figure(data=data, layout=layout)
+            div = opy.plot(fig2, auto_open=False, output_type='div')
+            way = 1
 
+        if request.FILES:
+            file = request.FILES['csv_evaluate']
+            reader = pandas.read_csv(file)
+            ########################################################
+            reviews = []
+            for i in reader['quality']:
+                if i >= 3 and i <= 5:
+                    reviews.append('1')
+                elif i >= 6 and i <= 6:
+                    reviews.append('2')
+                elif i >= 7 and i <= 8:
+                    reviews.append('3')
+            reader['Reviews'] = reviews
+            ########################################################
+
+            y = reader[[request.session['target']]]
+            sub = reader.drop(request.session['target'], 1)
+            if request.session['ignored']:
+                for ig in request.session['ignored']:
+                    sub = sub.drop(ig, 1)
+            sub = sub.sort_index(axis=1)
+            x = sub
+            request.session['x'] = x.values.tolist()       
+            result = model2.predict(x)
+            proba = model2.predict_proba(x)
+            request.session['proba'] = proba.tolist()
+            way = 2
+            x=x.values
+
+        if request.POST.get('results'):
+            
+            x = request.session['x'][int(request.POST.get('results'))-1]
+            proba = request.session['proba'][int(request.POST.get('results'))-1]
+            result = model2.predict(numpy.array([x]))
+            #LIME explanator
+            explainer = lime.lime_tabular.LimeTabularExplainer(x2_train, feature_names=features, class_names=request.session['target'], discretize_continuous=False)
+            df = pandas.Series(request.session['x'][int(request.POST.get('results'))-1], list(sub), name='001')
+            exp2 = explainer.explain_instance(df, model2.predict_proba, num_features=len(list(sub)))
+            fig = exp2.as_pyplot_figure()
+            tmp = six.StringIO()
+            fig.savefig(tmp, format='svg', bbox_inches='tight')
+
+            #Labels probabilities
+            targets = set(numpy.array(total[request.session['target']]))
+            data = [go.Bar(x=request.session['proba'][int(request.POST.get('results'))-1],y=list(targets),orientation = 'h')]
             layout=go.Layout(title="Probabilities", xaxis={'title':'Percentage'}, yaxis={'title': request.session['target']})
             fig2 = go.Figure(data=data, layout=layout)
             div = opy.plot(fig2, auto_open=False, output_type='div')
 
         context = {'accuracy': predict, 'predict_data': predict_data, 'test_data': x2_test.values, 'svg': tmp.getvalue(), 'labels': list(sub), 'target': request.session['target'],
-        'result': result, 'proba': proba, 'svg2': div }
-
+        'result': result, 'proba': proba, 'svg2': div, 'way': way, 'analyse': list(analyse), 'analyse_data': x }
     return render(request, 'ml/train.html', context)
