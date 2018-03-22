@@ -30,6 +30,7 @@ import six
 import plotly.plotly as py
 import plotly.graph_objs as go
 import plotly.offline as opy
+import pickle
 
 
 #index page
@@ -226,6 +227,7 @@ def train(request):
             result = model2.predict(x)
             proba = model2.predict_proba(x)
             request.session['proba'] = proba.tolist()
+            request.session['result'] = result.tolist()
             way = 2
             x=x.values
 
@@ -234,6 +236,7 @@ def train(request):
             x = request.session['x'][int(request.POST.get('results'))-1]
             proba = request.session['proba'][int(request.POST.get('results'))-1]
             result = model2.predict(numpy.array([x]))
+            
             #LIME explanator
             explainer = lime.lime_tabular.LimeTabularExplainer(x2_train, feature_names=features, class_names=request.session['target'], discretize_continuous=False)
             df = pandas.Series(request.session['x'][int(request.POST.get('results'))-1], list(sub), name='001')
@@ -248,6 +251,24 @@ def train(request):
             layout=go.Layout(title="Probabilities", xaxis={'title':'Percentage'}, yaxis={'title': request.session['target']})
             fig2 = go.Figure(data=data, layout=layout)
             div = opy.plot(fig2, auto_open=False, output_type='div')
+        
+        if request.POST.get('save_model'):
+            filename = 'finalized_model.sav'
+            pickle.dump(model2, open(filename, 'wb'))
+            loaded_model = pickle.load(open(filename, 'rb'))
+
+        if request.POST.get('save_results'):
+            with open('results.csv', 'w', newline='') as csvfile:
+                writer = csv.writer(csvfile, delimiter=',',
+                                        quotechar='|', quoting=csv.QUOTE_MINIMAL)
+                lbls = list(sub)
+                lbls.append(request.session['target'])
+                writer.writerow(lbls)
+                i = 0
+                for sample in request.session['x']:
+                    sample.append(request.session['result'][i])
+                    writer.writerow(sample)
+                    i += 1    
 
         context = {'accuracy': predict, 'predict_data': predict_data, 'test_data': x2_test.values, 'svg': tmp.getvalue(), 'labels': list(sub), 'target': request.session['target'],
         'result': result, 'proba': proba, 'svg2': div, 'way': way, 'analyse': list(analyse), 'analyse_data': x }
