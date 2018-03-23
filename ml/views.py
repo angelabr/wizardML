@@ -31,6 +31,7 @@ import plotly.plotly as py
 import plotly.graph_objs as go
 import plotly.offline as opy
 import pickle
+import matplotlib
 
 
 #index page
@@ -131,8 +132,8 @@ def confirm(request):
 
 #train page
 def train(request):
-
-    if request.POST:
+    matplotlib.use('Agg')
+    if request.POST or request.FILES:
         #get the whole dataset raw for easier processing
         total = pandas.read_json(request.session['dstfile'], orient='records')
 
@@ -144,16 +145,19 @@ def train(request):
                 sub = sub.drop(ig, 1)
         x = sub.sort_index(axis=1)
         x = sub      
- 
-        #datas
         x2_train, x2_test, y2_train, y2_test = train_test_split(x, y, test_size = ((Dataset.objects.get(id = request.session['dataset']).test_percent)/100))
-        #models
-        model2 = SVC(probability = True)
-        model2.fit(x2_train, y2_train) 
-        
+      
+        if request.FILES.get("model_file"):
+            model2 = pickle.load(request.FILES.get("model_file"))
+        else:
+            #models
+            model2 = SVC(probability = True)
+            model2.fit(x2_train, y2_train)
+        #datas      
         #testing and predictions
         predict_data = model2.predict(x2_test)
         predict = accuracy_score(y2_test, predict_data)*100
+
 
         #Examples for testing
         #fixed acidity,volatile acidity,citric acid,residual sugar,chlorides,free sulfur dioxide,total sulfur dioxide,density,pH,sulphates,alcohol,quality        
@@ -232,22 +236,19 @@ def train(request):
             x=x.values
 
         if request.POST.get('results'):
-            
             x = request.session['x'][int(request.POST.get('results'))-1]
             proba = request.session['proba'][int(request.POST.get('results'))-1]
             result = model2.predict(numpy.array([x]))
             
             #LIME explanator
             explainer = lime.lime_tabular.LimeTabularExplainer(x2_train, feature_names=features, class_names=request.session['target'], discretize_continuous=False)
-            df = pandas.Series(request.session['x'][int(request.POST.get('results'))-1], list(sub), name='001')
+            df = pandas.Series(x, list(sub), name='001')
             exp2 = explainer.explain_instance(df, model2.predict_proba, num_features=len(list(sub)))
-            fig = exp2.as_pyplot_figure()
-            tmp = six.StringIO()
-            fig.savefig(tmp, format='svg', bbox_inches='tight')
-
+            fig3 = exp2.as_pyplot_figure()
+            fig3.savefig(tmp, format='svg', bbox_inches='tight')
             #Labels probabilities
             targets = set(numpy.array(total[request.session['target']]))
-            data = [go.Bar(x=request.session['proba'][int(request.POST.get('results'))-1],y=list(targets),orientation = 'h')]
+            data = [go.Bar(x=proba,y=list(targets),orientation = 'h')]
             layout=go.Layout(title="Probabilities", xaxis={'title':'Percentage'}, yaxis={'title': request.session['target']})
             fig2 = go.Figure(data=data, layout=layout)
             div = opy.plot(fig2, auto_open=False, output_type='div')
@@ -256,7 +257,7 @@ def train(request):
             filename = 'finalized_model.sav'
             pickle.dump(model2, open(filename, 'wb'))
             loaded_model = pickle.load(open(filename, 'rb'))
-
+      
         if request.POST.get('save_results'):
             with open('results.csv', 'w', newline='') as csvfile:
                 writer = csv.writer(csvfile, delimiter=',',

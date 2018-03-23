@@ -3,6 +3,8 @@
 {% if dataset %}
 <form action="{% url 'ml:train'%}" method="post" enctype="multipart/form-data">{% csrf_token %}
 	<p>Dataset {{dataset.dataset_name}} is going to be analyzed to get a {{dataset.nature}}</p>
-    <input type="submit" value="Ok" />
+    <input type="submit" name="go" value="Create a model and train" /><br/>
+    <input type="file" name="model_file" />
+    <input type="submit" name="up" value="Upload pretrained model" />
 </form>
 {% endif %}
