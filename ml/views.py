@@ -32,6 +32,7 @@ import plotly.graph_objs as go
 import plotly.offline as opy
 import pickle
 import matplotlib
+from sklearn.preprocessing import MinMaxScaler
 
 
 #index page
@@ -48,15 +49,15 @@ def results(request):
 
         reader = pandas.read_csv(file)
 ########################################################
-        reviews = []
-        for i in reader['quality']:
-            if i >= 3 and i <= 5:
-                reviews.append('1')
-            elif i >= 6 and i <= 6:
-                reviews.append('2')
-            elif i >= 7 and i <= 8:
-                reviews.append('3')
-        reader['Reviews'] = reviews
+        #reviews = []
+        #for i in reader['quality']:
+        #    if i >= 3 and i <= 5:
+        #        reviews.append('1')
+        #    elif i >= 6 and i <= 6:
+        #        reviews.append('2')
+        #    elif i >= 7 and i <= 8:
+        #        reviews.append('3')
+        #reader['Reviews'] = reviews
 ########################################################
         #get first row as labels
         labels = list(reader)
@@ -144,7 +145,10 @@ def train(request):
             for ig in request.session['ignored']:
                 sub = sub.drop(ig, 1)
         x = sub.sort_index(axis=1)
-        x = sub      
+        scaler = MinMaxScaler()
+        x = scaler.fit_transform(x)
+        x = pandas.DataFrame(x.tolist())
+        
         x2_train, x2_test, y2_train, y2_test = train_test_split(x, y, test_size = ((Dataset.objects.get(id = request.session['dataset']).test_percent)/100))
       
         if request.FILES.get("model_file"):
@@ -153,6 +157,7 @@ def train(request):
             #models
             model2 = SVC(probability = True)
             model2.fit(x2_train, y2_train)
+          
         #datas      
         #testing and predictions
         predict_data = model2.predict(x2_test)
@@ -184,14 +189,19 @@ def train(request):
         if request.POST.get(list(sub)[0]):
             for l in list(sub):
                 analyse.append(float(request.POST.get(l)))
-
             #sc = StandardScaler()
-            result = model2.predict(numpy.array([analyse]))
-            proba = model2.predict_proba(numpy.array([analyse]))
+            scaler = MinMaxScaler()
+            x = pandas.DataFrame(analyse)
+            x = scaler.fit_transform(x)
+            x2 = x.flatten()
+            x = numpy.reshape(x,(1,20))      
+            x = pandas.DataFrame(x.tolist())
+            result = model2.predict(x)
+            proba = model2.predict_proba(x)
 
             #LIME explanator
             explainer = lime.lime_tabular.LimeTabularExplainer(x2_train, feature_names=features, class_names=request.session['target'], discretize_continuous=False)
-            df = pandas.Series(list(analyse), list(sub), name='001')
+            df = pandas.Series(x2, list(sub), name='001')
             exp2 = explainer.explain_instance(df, model2.predict_proba, num_features=len(list(sub)))
             fig = exp2.as_pyplot_figure()
             tmp = six.StringIO()
@@ -204,45 +214,56 @@ def train(request):
             fig2 = go.Figure(data=data, layout=layout)
             div = opy.plot(fig2, auto_open=False, output_type='div')
             way = 1
+            x = x2
 
         if request.FILES:
             file = request.FILES['csv_evaluate']
             reader = pandas.read_csv(file)
-            ########################################################
-            reviews = []
-            for i in reader['quality']:
-                if i >= 3 and i <= 5:
-                    reviews.append('1')
-                elif i >= 6 and i <= 6:
-                    reviews.append('2')
-                elif i >= 7 and i <= 8:
-                    reviews.append('3')
-            reader['Reviews'] = reviews
-            ########################################################
-
-            y = reader[[request.session['target']]]
-            sub = reader.drop(request.session['target'], 1)
+    ########################################################
+            #reviews = []
+            #for i in reader['quality']:
+            #    if i >= 3 and i <= 5:
+            #        reviews.append('1')
+            #    elif i >= 6 and i <= 6:
+            #        reviews.append('2')
+            #    elif i >= 7 and i <= 8:
+            #        reviews.append('3')
+            #reader['Reviews'] = reviews
+    ########################################################
+            sub = reader
+            if request.session['target'] in list(reader):
+                y = reader[[request.session['target']]]
+                sub = reader.drop(request.session['target'], 1)
             if request.session['ignored']:
                 for ig in request.session['ignored']:
                     sub = sub.drop(ig, 1)
             sub = sub.sort_index(axis=1)
             x = sub
-            request.session['x'] = x.values.tolist()       
+            request.session['x'] = x.values.tolist()
+            scaler = MinMaxScaler()
+            x = scaler.fit_transform(x)
+            x = pandas.DataFrame(x.tolist())
+            request.session['xs'] = x.values.tolist()
             result = model2.predict(x)
             proba = model2.predict_proba(x)
+
             request.session['proba'] = proba.tolist()
             request.session['result'] = result.tolist()
             way = 2
-            x=x.values
+            x = x.values
 
         if request.POST.get('results'):
-            x = request.session['x'][int(request.POST.get('results'))-1]
+            x = request.session['xs'][int(request.POST.get('results'))-1]
+            x = numpy.array(x)
+            x2 = x.tolist()
+            x = numpy.reshape(x,(1,20))      
+            x = pandas.DataFrame(x)
             proba = request.session['proba'][int(request.POST.get('results'))-1]
-            result = model2.predict(numpy.array([x]))
-            
+            result = model2.predict(x)
+
             #LIME explanator
             explainer = lime.lime_tabular.LimeTabularExplainer(x2_train, feature_names=features, class_names=request.session['target'], discretize_continuous=False)
-            df = pandas.Series(x, list(sub), name='001')
+            df = pandas.Series(x2, list(sub), name='001')
             exp2 = explainer.explain_instance(df, model2.predict_proba, num_features=len(list(sub)))
             fig3 = exp2.as_pyplot_figure()
             fig3.savefig(tmp, format='svg', bbox_inches='tight')
@@ -252,7 +273,7 @@ def train(request):
             layout=go.Layout(title="Probabilities", xaxis={'title':'Percentage'}, yaxis={'title': request.session['target']})
             fig2 = go.Figure(data=data, layout=layout)
             div = opy.plot(fig2, auto_open=False, output_type='div')
-        
+            x = x2
         if request.POST.get('save_model'):
             filename = 'finalized_model.sav'
             pickle.dump(model2, open(filename, 'wb'))

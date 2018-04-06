@@ -95,9 +95,11 @@ With these probabilities: {{proba}}
 {% endif %}
 
 {% if svg %}
+{% if way == 2 %}
 The predicted {{target}} is: {{result}}
 Data analysed: {{analyse_data}}
 With these probabilities: {{proba}}
+{% endif %}
 <div style="width:34em;height:27em">
 	{% autoescape off %}
 	{{ svg }}
