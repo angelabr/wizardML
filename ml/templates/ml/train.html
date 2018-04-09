@@ -41,7 +41,7 @@ The experiment had an accuracy of: {{accuracy}}%.
 
 	<h2> Analyse data from file:</h2>
 	<input type="file" name="csv_evaluate" />
-	<input type="submit" value="Evaluate" />
+	<input type="submit" value="Evaluate" name="evaluate" />
 
 {% if way == 1 %}
 <h2>Results</h2>
@@ -95,11 +95,10 @@ With these probabilities: {{proba}}
 {% endif %}
 
 {% if svg %}
-{% if way == 2 %}
 The predicted {{target}} is: {{result}}
 Data analysed: {{analyse_data}}
 With these probabilities: {{proba}}
-{% endif %}
+
 <div style="width:34em;height:27em">
 	{% autoescape off %}
 	{{ svg }}

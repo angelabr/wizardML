@@ -49,15 +49,15 @@ def results(request):
 
         reader = pandas.read_csv(file)
 ########################################################
-        #reviews = []
-        #for i in reader['quality']:
-        #    if i >= 3 and i <= 5:
-        #        reviews.append('1')
-        #    elif i >= 6 and i <= 6:
-        #        reviews.append('2')
-        #    elif i >= 7 and i <= 8:
-        #        reviews.append('3')
-        #reader['Reviews'] = reviews
+        # reviews = []
+        # for i in reader['quality']:
+        #     if i >= 3 and i <= 5:
+        #         reviews.append('1')
+        #     elif i >= 6 and i <= 6:
+        #         reviews.append('2')
+        #     elif i >= 7 and i <= 8:
+        #         reviews.append('3')
+        # reader['Reviews'] = reviews
 ########################################################
         #get first row as labels
         labels = list(reader)
@@ -127,7 +127,7 @@ def confirm(request):
         #get nature of dataset    
         dst.nature = request.POST.get('purpose')     
         dst.save()
-
+    request.session['done'] = 0
     context = {'dataset': dst}
     return render(request, 'ml/confirm.html', context)
 
@@ -150,7 +150,7 @@ def train(request):
         x = pandas.DataFrame(x.tolist())
         
         x2_train, x2_test, y2_train, y2_test = train_test_split(x, y, test_size = ((Dataset.objects.get(id = request.session['dataset']).test_percent)/100))
-      
+
         if request.FILES.get("model_file"):
             model2 = pickle.load(request.FILES.get("model_file"))
         else:
@@ -160,9 +160,12 @@ def train(request):
           
         #datas      
         #testing and predictions
-        predict_data = model2.predict(x2_test)
-        predict = accuracy_score(y2_test, predict_data)*100
-
+        if request.session['done'] is not 1:
+            predict_data = model2.predict(x2_test)
+            predict = accuracy_score(y2_test, predict_data)*100
+            request.session['predict'] = predict.tolist()
+            request.session['predict_data'] = predict_data.tolist()
+            request.session['done'] = 1
 
         #Examples for testing
         #fixed acidity,volatile acidity,citric acid,residual sugar,chlorides,free sulfur dioxide,total sulfur dioxide,density,pH,sulphates,alcohol,quality        
@@ -194,7 +197,7 @@ def train(request):
             x = pandas.DataFrame(analyse)
             x = scaler.fit_transform(x)
             x2 = x.flatten()
-            x = numpy.reshape(x,(1,20))      
+            x = numpy.reshape(x,(1,len(x)))      
             x = pandas.DataFrame(x.tolist())
             result = model2.predict(x)
             proba = model2.predict_proba(x)
@@ -216,19 +219,19 @@ def train(request):
             way = 1
             x = x2
 
-        if request.FILES:
+        if request.FILES and request.POST.get('evaluate'):
             file = request.FILES['csv_evaluate']
             reader = pandas.read_csv(file)
     ########################################################
-            #reviews = []
-            #for i in reader['quality']:
-            #    if i >= 3 and i <= 5:
-            #        reviews.append('1')
-            #    elif i >= 6 and i <= 6:
-            #        reviews.append('2')
-            #    elif i >= 7 and i <= 8:
-            #        reviews.append('3')
-            #reader['Reviews'] = reviews
+            # reviews = []
+            # for i in reader['quality']:
+            #     if i >= 3 and i <= 5:
+            #         reviews.append('1')
+            #     elif i >= 6 and i <= 6:
+            #         reviews.append('2')
+            #     elif i >= 7 and i <= 8:
+            #         reviews.append('3')
+            # reader['Reviews'] = reviews
     ########################################################
             sub = reader
             if request.session['target'] in list(reader):
@@ -256,7 +259,7 @@ def train(request):
             x = request.session['xs'][int(request.POST.get('results'))-1]
             x = numpy.array(x)
             x2 = x.tolist()
-            x = numpy.reshape(x,(1,20))      
+            x = numpy.reshape(x,(1,len(x)))      
             x = pandas.DataFrame(x)
             proba = request.session['proba'][int(request.POST.get('results'))-1]
             result = model2.predict(x)
@@ -274,6 +277,7 @@ def train(request):
             fig2 = go.Figure(data=data, layout=layout)
             div = opy.plot(fig2, auto_open=False, output_type='div')
             x = x2
+
         if request.POST.get('save_model'):
             filename = 'finalized_model.sav'
             pickle.dump(model2, open(filename, 'wb'))
@@ -292,6 +296,6 @@ def train(request):
                     writer.writerow(sample)
                     i += 1    
 
-        context = {'accuracy': predict, 'predict_data': predict_data, 'test_data': x2_test.values, 'svg': tmp.getvalue(), 'labels': list(sub), 'target': request.session['target'],
+        context = {'accuracy': request.session['predict'], 'predict_data': request.session['predict_data'], 'test_data': x2_test.values, 'svg': tmp.getvalue(), 'labels': list(sub), 'target': request.session['target'],
         'result': result, 'proba': proba, 'svg2': div, 'way': way, 'analyse': list(analyse), 'analyse_data': x }
     return render(request, 'ml/train.html', context)
