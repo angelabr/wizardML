@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views import generic
@@ -33,7 +33,6 @@ import plotly.offline as opy
 import pickle
 import matplotlib
 from sklearn.preprocessing import MinMaxScaler
-
 
 #index page
 def index(request):
@@ -131,6 +130,9 @@ def confirm(request):
     context = {'dataset': dst}
     return render(request, 'ml/confirm.html', context)
 
+def oi(request):
+    return render(request, 'ml/oi.html', locals())
+
 #train page
 def train(request):
     matplotlib.use('Agg')
@@ -155,7 +157,7 @@ def train(request):
             model2 = pickle.load(request.FILES.get("model_file"))
         else:
             #models
-            model2 = SVC(probability = True)
+            model2 = SVC(probability=True)
             model2.fit(x2_train, y2_train)
           
         #datas      
@@ -201,9 +203,10 @@ def train(request):
             x = pandas.DataFrame(x.tolist())
             result = model2.predict(x)
             proba = model2.predict_proba(x)
+            targets = set(numpy.array(total[request.session['target']]))
 
             #LIME explanator
-            explainer = lime.lime_tabular.LimeTabularExplainer(x2_train, feature_names=features, class_names=request.session['target'], discretize_continuous=False)
+            explainer = lime.lime_tabular.LimeTabularExplainer(x2_train, feature_names=features, class_names=targets, discretize_continuous=False)
             df = pandas.Series(x2, list(sub), name='001')
             exp2 = explainer.explain_instance(df, model2.predict_proba, num_features=len(list(sub)))
             fig = exp2.as_pyplot_figure()
@@ -211,7 +214,7 @@ def train(request):
             fig.savefig(tmp, format='svg', bbox_inches='tight')
 
             #Labels probabilities
-            targets = set(numpy.array(total[request.session['target']]))
+            
             data = [go.Bar(x=list(proba.flatten()),y=list(targets),orientation = 'h')]
             layout=go.Layout(title="Probabilities", xaxis={'title':'Percentage'}, yaxis={'title': request.session['target']})
             fig2 = go.Figure(data=data, layout=layout)
@@ -263,15 +266,30 @@ def train(request):
             x = pandas.DataFrame(x)
             proba = request.session['proba'][int(request.POST.get('results'))-1]
             result = model2.predict(x)
-
-            #LIME explanator
-            explainer = lime.lime_tabular.LimeTabularExplainer(x2_train, feature_names=features, class_names=request.session['target'], discretize_continuous=False)
-            df = pandas.Series(x2, list(sub), name='001')
-            exp2 = explainer.explain_instance(df, model2.predict_proba, num_features=len(list(sub)))
-            fig3 = exp2.as_pyplot_figure()
-            fig3.savefig(tmp, format='svg', bbox_inches='tight')
-            #Labels probabilities
             targets = set(numpy.array(total[request.session['target']]))
+            targets = ''.join(str(e) for e in targets)  
+                      #LIME explanator
+            explainer = lime.lime_tabular.LimeTabularExplainer(x2_train, feature_names=features, class_names=targets, discretize_continuous=False)
+            df = pandas.Series(x2, list(sub), name='001')
+            exp2 = explainer.explain_instance(df, model2.predict_proba, num_features=len(list(sub)), top_labels=1)
+            exp2.save_to_file('ml/templates/oi.html')
+            f = open("ml/templates/oi.html","r")
+            lines = f.readlines()
+            f.close()
+            f = open("ml/templates/oi.html","w")
+            for line in lines:
+              if "templateSettings.interpolate" not in line:
+                f.write(line)
+              else:
+                print(line)  
+            f.close()
+
+
+            #fig3 = exp2.show_in_notebook()
+
+            #fig3 = exp2.as_pyplot_figure()
+            #fig3.savefig(tmp, format='svg', bbox_inches='tight')
+            #Labels probabilities
             data = [go.Bar(x=proba,y=list(targets),orientation = 'h')]
             layout=go.Layout(title="Probabilities", xaxis={'title':'Percentage'}, yaxis={'title': request.session['target']})
             fig2 = go.Figure(data=data, layout=layout)
@@ -299,3 +317,4 @@ def train(request):
         context = {'accuracy': request.session['predict'], 'predict_data': request.session['predict_data'], 'test_data': x2_test.values, 'svg': tmp.getvalue(), 'labels': list(sub), 'target': request.session['target'],
         'result': result, 'proba': proba, 'svg2': div, 'way': way, 'analyse': list(analyse), 'analyse_data': x }
     return render(request, 'ml/train.html', context)
+
