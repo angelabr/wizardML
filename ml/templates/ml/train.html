@@ -2,7 +2,7 @@
 <link rel="stylesheet" type="text/css" href="{% static 'ml/style.css' %}" />
 <form action="{% url 'ml:train'%}" method="post" enctype="multipart/form-data">{% csrf_token %}
 <h2>Training finished</h2>
-The experiment had an accuracy of: {{accuracy}}%.
+The experiment had an accuracy of: {{accuracy}}% with the algorithm {{name}}.
 <input type="submit" name="save_model" value="Save ML"/>
 <div class="content">
 	<h2>Data tested</h2>
@@ -95,25 +95,17 @@ With these probabilities: {{proba}}
 	<input type="submit" value="Get analysis" />
 {% endif %}
 
-{% if svg %}
-The predicted {{target}} is: {{result}}
-Data analysed: {{analyse_data}}
-With these probabilities: {{proba}}
-<div style="width:34em;height:27em">
-	{% autoescape off %}
-	{{ svg }}
-	
-	{% endautoescape %}
-</div>
+{% if div == 1 %}
+    <div  class="A" style="display: block !important;">
+{% else %}
+    <div class="A" style="display: none !important;">
 {% endif %}
-
-{% if svg2 %}
-<iframe id="encoder_iframe" height="75%" width="50%" src="{% url 'ml:oi' %}">
+The predicted {{target}} is: {{result}}<br>
+Data analysed: {{analyse_data}}<br>
+With these probabilities: {{proba}}<br>        
+<iframe id="encoder_iframe" height="75%" width="100%" src="{% url 'ml:oi' %}">
 </iframe>
-	<div style="width:30em;height:23em">
-	{% autoescape off %}
-	{{ svg2 }}
-	{% endautoescape %}
+
 </div>
-{% endif %}
+
 </form>

@@ -21,7 +21,9 @@ from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.decomposition import PCA
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
@@ -33,6 +35,10 @@ import plotly.offline as opy
 import pickle
 import matplotlib
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import GridSearchCV
+from sklearn.pipeline import Pipeline
+from sklearn.gaussian_process import GaussianProcessClassifier
+from sklearn.neural_network import MLPClassifier
 
 #index page
 def index(request):
@@ -136,6 +142,7 @@ def oi(request):
 #train page
 def train(request):
     matplotlib.use('Agg')
+
     if request.POST or request.FILES:
         #get the whole dataset raw for easier processing
         total = pandas.read_json(request.session['dstfile'], orient='records')
@@ -150,24 +157,70 @@ def train(request):
         scaler = MinMaxScaler()
         x = scaler.fit_transform(x)
         x = pandas.DataFrame(x.tolist())
-        
-        x2_train, x2_test, y2_train, y2_test = train_test_split(x, y, test_size = ((Dataset.objects.get(id = request.session['dataset']).test_percent)/100))
 
+        x2_train, x2_test, y2_train, y2_test = train_test_split(x, y, test_size = ((Dataset.objects.get(id = request.session['dataset']).test_percent)/100))
+        
+        names = ["Nearest Neighbors", "Linear SVM", "RBF SVM",
+         "Decision Tree", "Random Forest", "AdaBoost", "Logistic Regression",
+         "Naive Bayes", "QDA"]
+
+        classifiers = [
+            KNeighborsClassifier(),
+            SVC(kernel="linear", probability=True),
+            SVC(kernel="rbf", probability=True),
+            DecisionTreeClassifier(),
+            RandomForestClassifier(n_jobs=1),
+            AdaBoostClassifier(),
+            LogisticRegression(),
+            GaussianNB(),
+            QuadraticDiscriminantAnalysis()
+            ]
+      #------------------hyperparameter tuning--------------------
+       
         if request.FILES.get("model_file"):
             model2 = pickle.load(request.FILES.get("model_file"))
         else:
-            #models
-            model2 = SVC(probability=True)
-            model2.fit(x2_train, y2_train)
-          
-        #datas      
-        #testing and predictions
-        if request.session['done'] is not 1:
-            predict_data = model2.predict(x2_test)
-            predict = accuracy_score(y2_test, predict_data)*100
-            request.session['predict'] = predict.tolist()
-            request.session['predict_data'] = predict_data.tolist()
-            request.session['done'] = 1
+            #compare all the classifier, store their scores
+            if request.session['done'] is not 1:
+                tuned_parameters = [dict(n_neighbors=list(range(1, 31))),
+                            {'C': [1, 10, 100, 1000]},
+                            {'gamma': [1e-3, 1e-4], 'C': [1, 10, 100, 1000]},
+                            {'n_estimators': [16, 32],'max_depth':[4,5,6,7,8,9,10,11,12,15,20,30,40,50,70,90,120,150]},
+                            {'n_estimators': [200, 700], 'max_features': ['auto', 'sqrt', 'log2']},
+                            {'n_estimators': [1,5,10,20,30,40,50,60,70,80,90,100], 'learning_rate': [0.001, 0.01, 0.1, 1] },
+                            {'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000] }]
+
+                scs = []
+                for name, clf in zip(names, classifiers):
+                    clf.fit(x2_train, y2_train)
+                    score = clf.score(x2_test, y2_test)
+                    print("SCORE: "+str(score)+" NAME: "+name)
+                    scs.append(score)
+                #pick best classifier    
+                max_value = max(scs)
+                max_index = scs.index(max_value)
+                request.session['max'] = max_index    
+                    
+                if max_index <= 6:
+                    model2 = GridSearchCV(classifiers[max_index], tuned_parameters[max_index], cv=5)
+                    model2.fit(x2_train, y2_train)
+                    request.session['params'] = tuned_parameters[max_index]
+                    print(model2.best_params_)
+
+                else:
+                    model2 = classifiers[max_index]
+                    model2.fit(x2_train, y2_train)
+
+                pickle.dump(model2, open('tmp_model.sav', 'wb'))    
+                predict_data = model2.predict(x2_test)
+                predict = model2.score(x2_test, y2_test)*100
+                print(predict)
+                request.session['predict'] = predict.tolist()
+                request.session['predict_data'] = predict_data.tolist()
+                request.session['done'] = 1    
+            
+            else:
+                model2=pickle.load(open('tmp_model.sav', 'rb'))
 
         #Examples for testing
         #fixed acidity,volatile acidity,citric acid,residual sugar,chlorides,free sulfur dioxide,total sulfur dioxide,density,pH,sulphates,alcohol,quality        
@@ -188,7 +241,7 @@ def train(request):
         tmp = six.StringIO()
         div = six.StringIO()
         way = 0
-
+        div2 = 0
         #labels for results analysis
         #IF DATA HAS BEEN INTRODUCED MANUALLY
         if request.POST.get(list(sub)[0]):
@@ -204,22 +257,21 @@ def train(request):
             result = model2.predict(x)
             proba = model2.predict_proba(x)
             targets = set(numpy.array(total[request.session['target']]))
-
-            #LIME explanator
+            targets = ''.join(str(e) for e in targets)  
             explainer = lime.lime_tabular.LimeTabularExplainer(x2_train, feature_names=features, class_names=targets, discretize_continuous=False)
             df = pandas.Series(x2, list(sub), name='001')
-            exp2 = explainer.explain_instance(df, model2.predict_proba, num_features=len(list(sub)))
-            fig = exp2.as_pyplot_figure()
-            tmp = six.StringIO()
-            fig.savefig(tmp, format='svg', bbox_inches='tight')
+            exp2 = explainer.explain_instance(df, model2.predict_proba, num_features=len(list(sub)), top_labels=1)
+            exp2.save_to_file('ml/templates/oi.html')
 
-            #Labels probabilities
-            
-            data = [go.Bar(x=list(proba.flatten()),y=list(targets),orientation = 'h')]
-            layout=go.Layout(title="Probabilities", xaxis={'title':'Percentage'}, yaxis={'title': request.session['target']})
-            fig2 = go.Figure(data=data, layout=layout)
-            div = opy.plot(fig2, auto_open=False, output_type='div')
-            way = 1
+            f = open("ml/templates/oi.html","r", encoding="utf8")
+            lines = f.readlines()
+            f.close()
+            a = open("ml/templates/oi.html","w", encoding="utf8")
+            for line in lines:
+              if "templateSettings.interpolate" not in line:
+                a.write(line)
+                print(".")
+            a.close()
             x = x2
 
         if request.FILES and request.POST.get('evaluate'):
@@ -259,6 +311,7 @@ def train(request):
             x = x.values
 
         if request.POST.get('results'):
+            div2 = 1
             x = request.session['xs'][int(request.POST.get('results'))-1]
             x = numpy.array(x)
             x2 = x.tolist()
@@ -273,27 +326,16 @@ def train(request):
             df = pandas.Series(x2, list(sub), name='001')
             exp2 = explainer.explain_instance(df, model2.predict_proba, num_features=len(list(sub)), top_labels=1)
             exp2.save_to_file('ml/templates/oi.html')
-            f = open("ml/templates/oi.html","r")
+
+            f = open("ml/templates/oi.html","r", encoding="utf8")
             lines = f.readlines()
             f.close()
-            f = open("ml/templates/oi.html","w")
+            a = open("ml/templates/oi.html","w", encoding="utf8")
             for line in lines:
               if "templateSettings.interpolate" not in line:
-                f.write(line)
-              else:
-                print(line)  
-            f.close()
-
-
-            #fig3 = exp2.show_in_notebook()
-
-            #fig3 = exp2.as_pyplot_figure()
-            #fig3.savefig(tmp, format='svg', bbox_inches='tight')
-            #Labels probabilities
-            data = [go.Bar(x=proba,y=list(targets),orientation = 'h')]
-            layout=go.Layout(title="Probabilities", xaxis={'title':'Percentage'}, yaxis={'title': request.session['target']})
-            fig2 = go.Figure(data=data, layout=layout)
-            div = opy.plot(fig2, auto_open=False, output_type='div')
+                a.write(line)
+                print(".")
+            a.close()
             x = x2
 
         if request.POST.get('save_model'):
@@ -314,7 +356,7 @@ def train(request):
                     writer.writerow(sample)
                     i += 1    
 
-        context = {'accuracy': request.session['predict'], 'predict_data': request.session['predict_data'], 'test_data': x2_test.values, 'svg': tmp.getvalue(), 'labels': list(sub), 'target': request.session['target'],
-        'result': result, 'proba': proba, 'svg2': div, 'way': way, 'analyse': list(analyse), 'analyse_data': x }
+        context = {'accuracy': request.session['predict'], 'predict_data': request.session['predict_data'], 'test_data': x2_test.values, 'div': div2, 'labels': list(sub), 'target': request.session['target'],
+        'result': result, 'proba': proba, 'way': way, 'analyse': list(analyse), 'analyse_data': x, 'name':names[request.session['max']]}
     return render(request, 'ml/train.html', context)
 

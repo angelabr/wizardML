@@ -35798,25 +35798,25 @@
 /***/ })
 /******/ ]);
 //# sourceMappingURL=bundle.js.map </script></head><body>
-        <div class="lime top_div" id="top_divKDMK3L24G45UDW2"></div>
+        <div class="lime top_div" id="top_div0OIM1SIJ7PGLHX8"></div>
         
         <script>
-        var top_div = d3.select('#top_divKDMK3L24G45UDW2').classed('lime top_div', true);
+        var top_div = d3.select('#top_div0OIM1SIJ7PGLHX8').classed('lime top_div', true);
         
             var pp_div = top_div.append('div')
                                 .classed('lime predict_proba', true);
             var pp_svg = pp_div.append('svg').style('width', '100%');
-            var pp = new lime.PredictProba(pp_svg, ["0", "1", "2", "3"], [0.0007521569001020736, 0.0002954596982443142, 0.6160185032733586, 0.3829338801282952]);
+            var pp = new lime.PredictProba(pp_svg, ["0", "1"], [0.9444444444444444, 0.05555555555555555]);
             
         
         var exp_div;
-            var exp = new lime.Explanation(["0", "1", "2", "3"]);
+            var exp = new lime.Explanation(["0", "1"]);
         
                 exp_div = top_div.append('div').classed('lime explanation', true);
-                exp.show([["ram", 0.10781190521052234], ["n_cores", 0.044944375089680466], ["touch_screen", -0.04201533047905795], ["int_memory", -0.03523581482730795], ["talk_time", -0.022586431931986162], ["four_g", -0.02113217577426223], ["mobile_wt", 0.02008938580876668], ["dual_sim", -0.016311410897606023], ["m_dep", -0.016085219665644048], ["sc_w", 0.014024252219623673], ["fc", 0.01367254098732703], ["wifi", -0.012910134972936495], ["clock_speed", -0.011353785775901766], ["battery_power", -0.010198397523437446], ["px_width", -0.006643108211519026], ["sc_h", -0.00466710169291496], ["pc", -0.0046203045918410965], ["blue", -0.0041788557524020655], ["px_height", 0.0033233372204390576], ["three_g", 0.002111769498776089]], 2, exp_div);
+                exp.show([["Insulin", -0.09752964915572958], ["DiabetesPedigreeFunction", -0.05701237993945378], ["Pregnancies", -0.05196151837248184], ["Glucose", -0.04223197269812292], ["SkinThickness", -0.03571290320531668], ["Age", -0.017232866386377433], ["BloodPressure", -0.00838323362806716], ["BMI", 0.0071120900608841325]], 0, exp_div);
                 
         var raw_div = top_div.append('div');
-            exp.show_raw_tabular([["ram", "0.86", 0.10781190521052234], ["n_cores", "0.29", 0.044944375089680466], ["touch_screen", "1.00", -0.04201533047905795], ["int_memory", "0.05", -0.03523581482730795], ["talk_time", "0.00", -0.022586431931986162], ["four_g", "0.00", -0.02113217577426223], ["mobile_wt", "0.94", 0.02008938580876668], ["dual_sim", "1.00", -0.016311410897606023], ["m_dep", "0.00", -0.016085219665644048], ["sc_w", "0.39", 0.014024252219623673], ["fc", "0.74", 0.01367254098732703], ["wifi", "0.00", -0.012910134972936495], ["clock_speed", "0.52", -0.011353785775901766], ["battery_power", "0.36", -0.010198397523437446], ["px_width", "0.61", -0.006643108211519026], ["sc_h", "0.50", -0.00466710169291496], ["pc", "0.80", -0.0046203045918410965], ["blue", "1.00", -0.0041788557524020655], ["px_height", "0.12", 0.0033233372204390576], ["three_g", "0.00", 0.002111769498776089]], 2, raw_div);
+            exp.show_raw_tabular([["Insulin", "0.25", -0.09752964915572958], ["DiabetesPedigreeFunction", "0.23", -0.05701237993945378], ["Pregnancies", "0.07", -0.05196151837248184], ["Glucose", "0.13", -0.04223197269812292], ["SkinThickness", "0.08", -0.03571290320531668], ["Age", "0.50", -0.017232866386377433], ["BloodPressure", "0.11", -0.00838323362806716], ["BMI", "0.00", 0.0071120900608841325]], 0, raw_div);
         
         </script>
         </body></html>
