@@ -1,10 +1,32 @@
 {% load static %}
 {% load staticfiles %}
-{% static 'static_jquery/js/jquery.js' %}
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+<script src="{% static 'ml/app.js' %}"></script>   
 <link rel="stylesheet" type="text/css" href="{% static 'ml/style.css' %}" />
-<form action="{% url 'ml:results'%}" method="post" enctype="multipart/form-data">{% csrf_token %}
+<link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-    <input type="file" name="csv_file" />
-    <input type="submit" value="Upload" />
+<div class="index-text" id="index-text">
+	<h1> Machine learning made easy</h1>
+	<a>Without code</a><br/>
+	<a>Without equations</a><br/><br/>
+	<a>Just your <b>idea</b> and <b>you</b></a><br/>
+	<button id="getstarted">Get started</button>
+</div>
+<div class="index-img" id="index-img">
+	<img src= "{% static 'ml/images/humach.PNG' %}">
+</div>
+<br/>
+<div class="index-form" id="index-form">
+<form action="{% url 'ml:results'%}" method="post" enctype="multipart/form-data" id="file-form">{% csrf_token %}
+		<img id="form-img" src= "{% static 'ml/images/dataset.png' %}"><br/><br/>
 
+<a id="form-text">Let's start by uploading the data you want to analyse.</a><br/><br/>
+<a>All we need is a</a> <a id="form-text2" href="https://www.computerhope.com/issues/ch001356.htm" target="_blank">CSV file</a> <a> with values separated by commas.</a><br/><br/>
+
+	<input type="file" name="csv_file" id="file" class="inputfile">
+	<label for="file"><i class="material-icons">file_upload</i><div id="choose">Choose a file</div></label></input><br/> <br/>
+	<img id="loading" src= "{% static 'ml/images/loading.gif' %}">
 </form> 
+</div>

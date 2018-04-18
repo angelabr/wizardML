@@ -1,8 +1,20 @@
 {% load static %}
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+<script src="{% static 'ml/app.js' %}"></script>   
 <link rel="stylesheet" type="text/css" href="{% static 'ml/style.css' %}" />
+<link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
 {% if dataset %}
 <form action="{% url 'ml:confirm'%}" method="post" enctype="multipart/form-data">{% csrf_token %}
+<div class="result-text" id="result-text">	
   <h1>Dataset: {{dataset.dataset_name}}</h1>
+  <a> This is the data that is going to be analyzed. </a>
+  <a> Click on a column's upper-left x to remove it. </a>
+  <a> Select a single column to be the result of the analysis by clicking on its name. </a><br/><br/>
+
+</div>  
   <table>
     <tr>
     	<th>Labels</th>
