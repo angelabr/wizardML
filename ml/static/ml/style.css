@@ -134,12 +134,10 @@
 /* RESULTS.HTML */
 
 .result-text{
-	text-align: center;
-	margin-top: 10%;
-	margin-left: 5%;
-	margin-right: 20px;
-	float: left;
-
+	margin-top: 5%;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
 }
 .result-text h1{
 	color: #704e96;
@@ -153,9 +151,97 @@
 	font-size: 18px;
 
 }
-.content {
-	height:120px;
-	width:1000px;
-	border:1px solid #ccc;
-	overflow:auto;
+
+#analysisout{
+	cursor: pointer;
+	text-decoration: underline;
 }
+
+#analysisout:hover{
+		color: #704e96;
+}
+
+#miniinfo{
+	font-size: 12px;
+	display: none;
+	color: #565656;
+}
+.content{
+	display: flex;
+  justify-content: center;
+  align-items: center;
+
+
+}
+
+#samples{
+	max-height: 300px;
+    overflow: auto;
+ white-space: nowrap;
+}
+#col{
+    background-color: #e5ddee;
+	text-align: center;
+	display:inline-block;
+	font-family: 'Varela Round', sans-serif;
+	font-size: 12px;
+	color: #565656;
+
+
+}
+
+#label{
+	font-family: 'Varela Round', sans-serif;
+	font-size: 13.5px;
+	color: #704e96;
+	font-weight: bold;
+
+
+}
+#tohide{
+	display: none;
+}
+
+/* Turn on custom 8px wide scrollbar */
+::-webkit-scrollbar {
+  width: 10px; /* 1px wider than Lion. */
+  height: 9px;
+  /* This is more usable for users trying to click it. */
+  background-color: rgba(0,0,0,0.05);
+  -webkit-border-radius: 100px;
+}
+/* hover effect for both scrollbar area, and scrollbar 'thumb' */
+::-webkit-scrollbar:hover {
+  background-color: rgba(0, 0, 0, 0.09);
+}
+ 
+/* The scrollbar 'thumb' ...that marque oval shape in a scrollbar */
+::-webkit-scrollbar-thumb:vertical {
+  /* This is the EXACT color of Mac OS scrollbars. 
+     Yes, I pulled out digital color meter */
+  background: rgba(0,0,0,0.5);
+  -webkit-border-radius: 100px;
+  background-clip: padding-box;
+  border: 2px solid rgba(0, 0, 0, 0);
+  min-height: 10px; /*Prevent it from getting too small */
+}
+::-webkit-scrollbar-thumb:vertical:active {
+  background: rgba(0,0,0,0.61); /* Some darker color when you click it */
+  -webkit-border-radius: 100px;
+}
+/* The scrollbar 'thumb' ...that marque oval shape in a scrollbar */
+::-webkit-scrollbar-thumb:horizontal {
+  /* This is the EXACT color of Mac OS scrollbars. 
+     Yes, I pulled out digital color meter */
+  background: rgba(0,0,0,0.5);
+  -webkit-border-radius: 100px;
+  background-clip: padding-box;
+  border: 2px solid rgba(0, 0, 0, 0);
+
+}
+::-webkit-scrollbar-thumb:horizontal:active {
+  background: rgba(0,0,0,0.61); /* Some darker color when you click it */
+  -webkit-border-radius: 100px;
+}
+
+

@@ -8,58 +8,59 @@
 
 {% if dataset %}
 <form action="{% url 'ml:confirm'%}" method="post" enctype="multipart/form-data">{% csrf_token %}
-<div class="result-text" id="result-text">	
-  <h1>Dataset: {{dataset.dataset_name}}</h1>
-  <a> This is the data that is going to be analyzed. </a>
-  <a> Click on a column's upper-left x to remove it. </a>
-  <a> Select a single column to be the result of the analysis by clicking on its name. </a><br/><br/>
-
-</div>  
-  <table>
-    <tr>
-    	<th>Labels</th>
-      {% for label in labels %}
-      <th>{{label}}</th>
-      {% endfor %}
-    </tr>
-    <tr>
-     <td>Ignore</td>
-     {% for label in labels_content %}
-     <td><input name="ignore" type="checkbox" value="{{ label.pk }}"></td>
-     {% endfor %}
-   </tr>
-   <tr>
-    <td>Target</td>
-    {% for label in labels_content %}
-    <td><input name="target" type="radio" value="{{ label.pk }}"></td>
-    {% endfor %}
-  </tr>
-</table> 
-<div class="content">
-  <table> 
-   {% for row in samples %}
-   <tr>
-    <td>  </td>
-    {% for sample in row %}	
-    <td>{{sample}}</td> 
-    {% endfor %}
-  </tr>
-  {% endfor %}
-</table>
-</div>
-Percetanges of data for training,evaluation and test:
-<select name="percentages">
-  <option value="na">Not sure</option>
-  <option value="60-20-20">60%-20%-20%</option>
-  <option value="80-10-10">80%-10%-10%</option>
-  <option value="80-20-0">80%-20%-0%</option>
-</select>
-<br>
-I want to perform a: 
-<select name="purpose">
-  <option value="PR">Prediction</option>
-  <option value="CL">Classification</option>
-</select> 
-<input type="submit" value="Continue" />
+	<div class="result-text" id="result-text">	
+		<h1>Dataset: {{dataset.dataset_name}}</h1>
+		<a> This is your data. </a> <br/>
+		<a> Click on a column's upper-left x to remove it. </a> <br/>
+		<a> Select the</a> <a id="analysisout"> analysis output</a> <a>by clicking on a column's name. </a><br/><br/>
+		<a id="miniinfo">The output is the result of the analysis, for instance if you want to classify houses by price, you should select the column "price".</a><br/><br/>
+	</div>  
+	<table>
+		<tr>
+			<td>Ignore</td>
+			{% for label in labels_content %}
+			<td><input name="ignore" type="checkbox" value="{{ label.pk }}"></td>
+			{% endfor %}
+		</tr>
+		<tr>
+			<td>Target</td>
+			{% for label in labels_content %}
+			<td><input name="target" type="radio" value="{{ label.pk }}"></td>
+			{% endfor %}
+		</tr>
+	</table> 
+	<div class="content">
+		<div id="samples">
+			{% for column in samples %}
+			<div id="col">
+				{% for sample in column %}	
+					{% if forloop.first %}
+					<br/>
+						<a id="label">&nbsp;&nbsp;{{sample}}&nbsp;&nbsp;</a><br/><br/>
+					{% else %}    
+						<a>{{sample}}</a><br/>
+					{% endif %}
+				{% endfor %}
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+	<div id="tohide">
+		<a>Percetanges of data for training,evaluation and test:</a>
+		<select name="percentages">
+			<option value="na">Not sure</option>
+			<option value="60-20-20">60%-20%-20%</option>
+			<option value="80-10-10">80%-10%-10%</option>
+			<option value="80-20-0">80%-20%-0%</option>
+		</select>
+		<br>
+		<a>I want to perform a: </a>
+		<select name="purpose">
+			<option value="PR">Prediction</option>
+			<option value="CL">Classification</option>
+		</select> 
+	</div>
+	<br/><br/>
+	<input type="submit" value="Continue" />
 </form>        
 {% endif %}

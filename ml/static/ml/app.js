@@ -14,4 +14,8 @@ $(document).ready(function(){
 		$('#file-form').submit();
 		$('#loading').show();
 	});
+	//RESULTS.HTML
+	$("#analysisout").click(function(event){
+		$('#miniinfo').fadeToggle();
+	});
 });

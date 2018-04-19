@@ -69,7 +69,7 @@ def results(request):
         nlabels = len(labels)
         
         #rest of rows as values
-        samples = reader.values
+        samples = []
         nsamples= len(reader)*nlabels
   
         #raw data into session
@@ -84,10 +84,11 @@ def results(request):
         #save labels in db
         for label in labels:
             smpls = list(reader[label].values)
+            smpls.insert(0, label)
             lbl = Label(dataset = dst, label_name = label, samples = smpls)
             lbl.save()
-            label_ids.append(lbl.id)            
-
+            label_ids.append(lbl.id)   
+            samples.append(smpls)         
         #list of labels with content
         labels_content = Label.objects.filter(dataset_id=dst.id).order_by('pk')
         ordered = []
