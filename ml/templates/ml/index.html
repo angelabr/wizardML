@@ -6,7 +6,7 @@
 <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
+<div class="index">
 <div class="index-text" id="index-text">
 	<h1> Machine learning made easy</h1>
 	<a>Without code</a><br/>
@@ -17,6 +17,8 @@
 <div class="index-img" id="index-img">
 	<img src= "{% static 'ml/images/humach.PNG' %}">
 </div>
+</div>
+
 <br/>
 <div class="index-form" id="index-form">
 	<form action="{% url 'ml:results'%}" method="post" enctype="multipart/form-data" id="file-form">{% csrf_token %}

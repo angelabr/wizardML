@@ -92,8 +92,12 @@ def results(request):
         #list of labels with content
         labels_content = Label.objects.filter(dataset_id=dst.id).order_by('pk')
         ordered = []
+        i = 0
         for l in labels_content:
+            samples[i].insert(0, l.id)
+            i+=1
             ordered.append(l.id)
+
         request.session['labels'] = ordered
         context = {'labels': labels, 'labels_content': labels_content, 'dataset': dst, 'samples': samples}
 

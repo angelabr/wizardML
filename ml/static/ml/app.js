@@ -18,4 +18,10 @@ $(document).ready(function(){
 	$("#analysisout").click(function(event){
 		$('#miniinfo').fadeToggle();
 	});
+	
+
 });
+function reply_click(obj)
+	{	console.log($(obj).parent())
+    $(obj).parent()[0].classList.toggle("colG");
+	}
