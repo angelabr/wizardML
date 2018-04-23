@@ -20,19 +20,18 @@
 			{% for column in samples %}
 			<div id="col">
 				<br/>
-
 				{% for sample in column %}	
 				{% if forloop.first %}
 				<label id="switch{{ sample }}" class="switch" onChange="reply_click(this)">
-					<input name="ignore" type="checkbox" value="{{ sample }}"/>
+					<input name="ignore" type="checkbox" class="ignore" value="{{ sample }}"/>
 					<span class="slider round"></span>
 				</label>
 				<br/>
 
-				<input name="target" type="radio" id="{{ sample }}" value="{{ sample }}"><label for="{{ sample }}"><br/>
+				<input name="target" type="radio" id="{{ sample }}" value="{{ sample }}" class="target" required><label for="{{ sample }}" onClick="reply_clickT(this)"/></input><br/>
 					{% else %}    
 					{% if forloop.counter == 2 %}
-					<a id="label">&nbsp;&nbsp;{{sample}}&nbsp;&nbsp;</a></label><br/><br/>
+					<a id="label">&nbsp;&nbsp;&nbsp;&nbsp;{{sample}}&nbsp;&nbsp;&nbsp;&nbsp;</a></label><br/><br/>
 					{% else %}    
 					<a>{{sample}}</a><br/>
 					{% endif %}	

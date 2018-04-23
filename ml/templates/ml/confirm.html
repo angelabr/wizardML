@@ -1,10 +1,27 @@
 {% load static %}
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+<script src="{% static 'ml/app.js' %}"></script>   
 <link rel="stylesheet" type="text/css" href="{% static 'ml/style.css' %}" />
+<link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 {% if dataset %}
-<form action="{% url 'ml:train'%}" method="post" enctype="multipart/form-data">{% csrf_token %}
-	<p>Dataset {{dataset.dataset_name}} is going to be analyzed to get a {{dataset.nature}}</p>
-    <input type="submit" name="go" value="Create a model and train" /><br/>
-    <input type="file" name="model_file" />
-    <input type="submit" name="up" value="Upload pretrained model" />
-</form>
+<div class="confirm-form" id="confirm-form">
+	<form action="{% url 'ml:train'%}" method="post" enctype="multipart/form-data">{% csrf_token %}
+		<a id="form-text">You are going to perform a classification on the dataset <b>{{dataset.dataset_name}}</b></a><br/><br/>
+		<a>You can choose to perform an analysis from scratch or to upload a local .sav file.</a><br/>
+		<a> If you are not sure, create a new system.</a><br/><br/>
+		<div id="buttons">
+			<div id="left">
+				<input type="submit" id="continue2" name="go" value="Create" />
+			</div>
+			<div id="right">
+				<input type="file" name="model_file" id="file" class="inputfile2">
+				<label for="file"><i class="material-icons">file_upload</i>Upload</label></input>
+			</div>
+		</div>
+		<br/><br/>
+		<img id="loading" src= "{% static 'ml/images/loading.gif' %}">
+	</form>
+</div>
 {% endif %}
