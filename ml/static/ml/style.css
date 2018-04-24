@@ -24,7 +24,7 @@
 
 }
 
-.index-text button, #continue, #continue2{
+.index-text button, #continue, #continue2, #continue3, #getstarted{
 	-webkit-border-radius: 11;
 	-moz-border-radius: 11;
 	border-radius: 8px;
@@ -39,7 +39,7 @@
 	margin-top: 25px;
 }
 
-.index-text button:hover,#left #continue2:hover, #continue:hover {
+.index-text button:hover,#left #continue2:hover, #continue:hover, #continue3:hover, #getstarted:hover {
 	background: #8a68b1;
 	text-decoration: none;
 	cursor: pointer;
@@ -429,3 +429,50 @@ input[type="checkbox"][disabled] + .slider{
 	text-align: center;
 }
 
+/*TRAIN.HTML*/
+
+.train-form{
+	margin-top: 7%;
+	text-align: center;
+}
+
+.train-form #form-text{
+	color: #704e96;
+	font-family: 'Quicksand', sans-serif;
+	font-size: 25px;
+	font-weight: bold;
+
+}
+
+.train-form a{
+	color: #7b7b7b;
+	font-family: 'Varela Round', sans-serif;
+	font-size: 18px;
+
+}
+
+.train-form #continue3{
+	width: 200px;
+	padding: 10px 100px 10px 42px;
+}
+
+#buttonsdata #getstarted{
+    width: 170px;
+    padding: 10px 25px 10px 25px;
+
+}
+
+#buttonsdata .inputfile2 + label {
+    font-family: 'Quicksand', sans-serif;
+    font-weight: bold;
+	font-size: 18px;
+    border-radius: 8px;
+	color: #ffffff;
+	background: #704e96;
+	padding: 10px 25px 10px 25px;
+	text-decoration: none;
+	border: none;
+    display: inline-block;
+    cursor: pointer;
+   	width: 120px;
+}

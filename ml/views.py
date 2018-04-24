@@ -39,7 +39,9 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.gaussian_process import GaussianProcessClassifier
 from sklearn.neural_network import MLPClassifier
-
+import tkinter.filedialog
+import time
+from mttkinter import mtTkinter as tk
 #index page
 def index(request):
     return render(request, 'ml/index.html', locals())
@@ -149,6 +151,7 @@ def train(request):
     matplotlib.use('Agg')
 
     if request.POST or request.FILES:
+        print(request)    
         #get the whole dataset raw for easier processing
         total = pandas.read_json(request.session['dstfile'], orient='records')
 
@@ -183,7 +186,9 @@ def train(request):
       #------------------hyperparameter tuning--------------------
        
         if request.FILES.get("model_file"):
+            print ("aqui")
             model2 = pickle.load(request.FILES.get("model_file"))
+            print(model2)
         else:
             #compare all the classifier, store their scores
             if request.session['done'] is not 1:
@@ -344,23 +349,28 @@ def train(request):
             x = x2
 
         if request.POST.get('save_model'):
-            filename = 'finalized_model.sav'
-            pickle.dump(model2, open(filename, 'wb'))
-            loaded_model = pickle.load(open(filename, 'rb'))
+            f = tk.filedialog.asksaveasfile(mode='wb', defaultextension=".sav")
+            if f is not None: # asksaveasfile return `None` if dialog closed with "cancel".
+                pickle.dump(model2, open(f.name, 'wb'))
+                loaded_model = pickle.load(open(f.name, 'rb'))
+                f.close()
       
         if request.POST.get('save_results'):
-            with open('results.csv', 'w', newline='') as csvfile:
-                writer = csv.writer(csvfile, delimiter=',',
-                                        quotechar='|', quoting=csv.QUOTE_MINIMAL)
-                lbls = list(sub)
-                lbls.append(request.session['target'])
-                writer.writerow(lbls)
-                i = 0
-                for sample in request.session['x']:
-                    sample.append(request.session['result'][i])
-                    writer.writerow(sample)
-                    i += 1    
-
+            f = tk.filedialog.asksaveasfile(mode='wb', defaultextension=".csv")
+            if f is not None: # asksaveasfile return `None` if dialog closed with "cancel". 
+                with open(f.name, 'w', newline='') as csvfile:
+                    writer = csv.writer(csvfile, delimiter=',',
+                                            quotechar='|', quoting=csv.QUOTE_MINIMAL)
+                    lbls = list(sub)
+                    lbls.append(request.session['target'])
+                    writer.writerow(lbls)
+                    i = 0
+                    for sample in request.session['x']:
+                        sample.append(request.session['result'][i])
+                        writer.writerow(sample)
+                        i += 1    
+                    f.close()
+                            
         context = {'accuracy': request.session['predict'], 'predict_data': request.session['predict_data'], 'test_data': x2_test.values, 'div': div2, 'labels': list(sub), 'target': request.session['target'],
         'result': result, 'proba': proba, 'way': way, 'analyse': list(analyse), 'analyse_data': x, 'name':names[request.session['max']]}
     return render(request, 'ml/train.html', context)

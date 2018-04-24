@@ -1,6 +1,9 @@
 $(document).ready(function(){
 	//INDEX.HTML
 	$('#loading').hide();
+	$('#inddata').hide();
+	$('#csvdata').hide();
+
 	$("#getstarted").click(function(event){
 		$('#index-text').fadeOut( "slow", function() {
 		});
@@ -11,7 +14,7 @@ $(document).ready(function(){
 	});
 
 	$('#file').change(function() {
-		$('#file-form').submit();
+		$('#file-form').submit(); 
 		$('#loading').show();
 	});
 	//RESULTS.HTML
@@ -32,11 +35,15 @@ $(document).ready(function(){
 	});
 
 	//CONFIRM.HTML
-	$("#continue2").click(function(event){
+	$("#left").click(function(event){
 		$('#loading').show();
 	});
 
-
+	//TRAIN.HTML
+	$(".manually").click(function(event){
+		console.log("gfghghgf")
+		$('#inddata').show();
+	});
 
 });
 
