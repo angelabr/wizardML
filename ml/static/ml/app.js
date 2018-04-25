@@ -4,6 +4,7 @@ $(document).ready(function(){
 	$('#inddata').hide();
 	$('#csvdata').hide();
 
+
 	$("#getstarted").click(function(event){
 		$('#index-text').fadeOut( "slow", function() {
 		});
@@ -41,10 +42,19 @@ $(document).ready(function(){
 
 	//TRAIN.HTML
 	$(".manually").click(function(event){
-		console.log("gfghghgf")
 		$('#inddata').show();
 	});
 
+	$("#continue4").click(function(event){
+		$('#inddata').hide();
+		$('#loading').show();
+	});
+
+	$('iframe.iframe1').load(function() {
+        $('iframe.iframe1').contents().find(".lime.table_div").hide();
+        $('iframe.iframe1').contents().find(".lime.top_div").css({"display":"flex","text-align":"center", 
+        	"justify-content":"space-around","flex-wrap":"wrap","padding":"0 3%"});
+	});
 });
 
 //GRAY - IGNORE
@@ -103,3 +113,13 @@ $(document).ready(function(){
 	$("#samples").attachDragger();
 });
 
+window.onclick = function(event) {
+    if (event.target == document.getElementById('inddata')) {
+        document.getElementById('inddata').style.display = "none";
+    }
+    if (event.target == document.getElementById('A')) {
+        document.getElementById('A').style.display = "none";
+        document.getElementById('loading').style.display = "none";
+
+    }
+}

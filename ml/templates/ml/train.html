@@ -6,124 +6,124 @@
 <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <form action="{% url 'ml:train'%}" method="post" enctype="multipart/form-data">{% csrf_token %}
-<div class="train-form">	
-<a id="form-text">Training finished</a><br/><br/>
-<a>The system training had an accuracy of: <b>{{accuracy}}%</b> using the algorithm: <b>{{name}}</b></a><br/>
-<input type="submit" id="continue3" name="save_model" value="Export system"/><br/><br/>
-<!--<div class="content">
-	<h2>Data tested</h2>
-	<table> 
-		<tr>
-			{% for label in labels %}
-			<th>{{label}}</th>
-			{% endfor %}
-		</tr>
-		{% for row in test_data %}
-		<tr>
-			<td>  </td>
-			{% for sample in row %}	
-			<td>{{sample}}</td> 
-			{% endfor %}
-		</tr>
-		{% endfor %}
-	</table>
-</div>
-	<table> 
-		<th>Results</th>
-		<tr>
-			<td>  </td>
-			{% for sample in predict_data %}	
-			<td>{{sample}}</td> 
-			{% endfor %}
-		</tr>
-	</table>
--->
+	<div class="train-form">	
+		<a id="form-text">Training finished</a><br/><br/>
+		<a>The system training had an accuracy of: <b>{{accuracy}}%</b> using the algorithm: <b>{{name}}</b></a><br/>
+		{% if exp == 0 %}
+		<input type="submit" id="continue3" name="save_model" value="Export system"/><br/><br/>
+		{% else %}
+		<br/>    
+		<a id="form-text2">System saved in {{path}}</a><br/><br/>
+		{% endif %}
 
-<div id="buttonsdata">
-	<a>Now you can perform an analysis using the trained system.</a><br/> 
-	<a>You can introduce one row of data manually or by uploading a CSV file.</a><br/> 
-	<button type="button" id="getstarted" class="manually">Manually</button>
-		<input type="file" name="csv_evaluate" id="file" class="inputfile2" onchange="this.form.submit()" >
-		<label for="file"><i class="material-icons">file_upload</i>&nbsp;Upload</label></input>
+		<div id="buttonsdata">
+			<a>Now you can perform an analysis using the trained system.</a><br/> 
+			<a>You can introduce one row of data manually or by uploading a CSV file.</a><br/> 
+			<button type="button" id="getstarted" class="manually">Manually</button>
+			<input type="file" name="csv_evaluate" id="file" class="inputfile2" onchange="this.form.submit()" >
+			<label for="file"><i class="material-icons">file_upload</i>&nbsp;Upload</label></input>
+			<br/><br/>
+			<img id="loading" src= "{% static 'ml/images/loading.gif' %}">
+		</div>
+
+		<div id="inddata">
+			<div class="modal-content">
+				<a id="form-text"> Introduce your data manually</a><br/><br/>
+				{% for l in labels %}
+				<input name="{{l}}" type="text" placeholder="{{l}}" >
+				{% endfor %}
+				<br/><br/>
+				<input type="submit" id="continue4" value="Evaluate" />
+			</div>
+		</div>
+
+		<div id="csvdata">
+			<h2> Analyse data from file:</h2>
+			<input type="file" name="csv_evaluate" />
+			<input type="submit" value="Evaluate" name="evaluate" />
+		</div>
+
 	</div>
-<div id="inddata">
-	<h2> Analyse individual data:</h2>
-	{% for l in labels %}
-	<a>{{l}}</a><input name="{{l}}" type="text">
-	{% endfor %}
-	<input type="submit" value="Evaluate" />
-</div>
+	{% if way == 1 %}
+	<h2>Results</h2>
+	The predicted {{target}} is: {{result}}
+	Data analysed: {{analyse}}
+	With these probabilities: {{proba}}
+	{% endif %}
 
-<div id="csvdata">
-	<h2> Analyse data from file:</h2>
-	<input type="file" name="csv_evaluate" />
-	<input type="submit" value="Evaluate" name="evaluate" />
-</div>
-
-</div>
-{% if way == 1 %}
-<h2>Results</h2>
-The predicted {{target}} is: {{result}}
-Data analysed: {{analyse}}
-With these probabilities: {{proba}}
-{% endif %}
-
-{% if way == 2 %}
-<input type="submit" name="save_results" value="Export to CSV"/>
-<h2>Results</h2>
-<div class="content">
-	<table> 
-		<th>Results</th>
-		<tr>
-			{% for sample in result %}	
-			<td>{{sample}}</td> 
-			{% endfor %}
-		</tr>
-		<tr>
-			{% for sample in proba %}	
-			<td>{{sample}}</td> 
-			{% endfor %}
-		</tr>
-	</table>
-</div>
-
-<div class="content">
-	<table> 
-		<tr>
-			{% for label in labels %}
-			<th>{{label}}</th>
-			{% endfor %}
-		</tr>
-		<tr>
-			<td>  </td>
-					{% for row in analyse_data %}
-		<tr><td>
-		<td><input name="results" type="radio" value="{{ forloop.counter }}">{% for sample in row %}	
-			{{sample}}
-			{% endfor %}</td>
-			
-		</td> </tr>
-		{% endfor %}
-		</tr>
-				<tr>
-			<td>  </td>
+	{% if way == 2 %}
+	<input type="submit" name="save_results" value="Export to CSV"/>
+	<h2>Results</h2>
+	<div class="content">
+		<table> 
+			<th>Results</th>
+			<tr>
+				{% for sample in result %}	
+				<td>{{sample}}</td> 
+				{% endfor %}
 			</tr>
-	</table>
-</div>
+			<tr>
+				{% for sample in proba %}	
+				<td>{{sample}}</td> 
+				{% endfor %}
+			</tr>
+		</table>
+	</div>
+
+	<div class="content">
+		<table> 
+			<tr>
+				{% for label in labels %}
+				<th>{{label}}</th>
+				{% endfor %}
+			</tr>
+			<tr>
+				<td>  </td>
+				{% for row in analyse_data %}
+				<tr><td>
+					<td><input name="results" type="radio" value="{{ forloop.counter }}">{% for sample in row %}	
+						{{sample}}
+					{% endfor %}</td>
+
+				</td> </tr>
+				{% endfor %}
+			</tr>
+			<tr>
+				<td>  </td>
+			</tr>
+		</table>
+	</div>
 	<input type="submit" value="Get analysis" />
-{% endif %}
+	{% endif %}
 
-{% if div == 1 %}
-    <div  class="A" style="display: block !important;">
-{% else %}
-    <div class="A" style="display: none !important;">
-{% endif %}
-The predicted {{target}} is: {{result}}<br>
-Data analysed: {{analyse_data}}<br>
-With these probabilities: {{proba}}<br>        
-<iframe id="encoder_iframe" height="75%" width="100%" src="{% url 'ml:oi' %}">
-</iframe>
 
-</div>
+	{% if div == 1 %}
+	<div  id="A" style="display: block !important;">
+		{% else %}
+		<div id="A" style="display: none !important;">
+			{% endif %}
+			<div class="modal-content train-form">
+				<a id="form-text">The predicted {{target}} is: {{result}}</a><br/><br/>
+				<a>Data analysed: {{analyse}}</a><br/><br/>
+				<a>With these probabilities for each cathegory:</a><br/><br/>
+				<div id="tabla">
+				<table>
+					<tr>
+						{% for target in targets %}
+						<th>{{target}}</th>
+						{% endfor %}
+					</tr>
+					<tr>
+						{% for pro in probaperc %}
+						<td>&nbsp;&nbsp;{{pro}}%&nbsp;&nbsp;</td>
+						{% endfor %}
+					</tr>
+				</table><br/><br/>
+			</div>
+				<iframe name="iframe1" class="iframe1" id="encoder_iframe" height="65%" width="55%" src="{% url 'ml:oi' %}">
+				</iframe>
+			</div>
 
-</form>
+		</div>
+
+	</form>

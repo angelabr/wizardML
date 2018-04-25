@@ -252,6 +252,11 @@ def train(request):
         div = six.StringIO()
         way = 0
         div2 = 0
+        exp = 0
+        request.session["fname"] = ""
+        probaperc=[]
+        explan=[]
+        targets=[]
         #labels for results analysis
         #IF DATA HAS BEEN INTRODUCED MANUALLY
         if request.POST.get(list(sub)[0]):
@@ -264,8 +269,11 @@ def train(request):
             x2 = x.flatten()
             x = numpy.reshape(x,(1,len(x)))      
             x = pandas.DataFrame(x.tolist())
-            result = model2.predict(x)
+            result = model2.predict(x).item(0)
             proba = model2.predict_proba(x)
+            for x in proba.tolist()[0]:
+                x = round(x, 5)
+                probaperc.append(x*100)
             targets = set(numpy.array(total[request.session['target']]))
             targets = ''.join(str(e) for e in targets)  
             explainer = lime.lime_tabular.LimeTabularExplainer(x2_train, feature_names=features, class_names=targets, discretize_continuous=False)
@@ -282,6 +290,8 @@ def train(request):
                 a.write(line)
                 print(".")
             a.close()
+            explan = exp2.as_list(model2.predict([df.as_matrix()])[0])
+            div2 = 1
             x = x2
 
         if request.FILES and request.POST.get('evaluate'):
@@ -314,7 +324,6 @@ def train(request):
             request.session['xs'] = x.values.tolist()
             result = model2.predict(x)
             proba = model2.predict_proba(x)
-
             request.session['proba'] = proba.tolist()
             request.session['result'] = result.tolist()
             way = 2
@@ -349,11 +358,16 @@ def train(request):
             x = x2
 
         if request.POST.get('save_model'):
+            root = tk.Tk()
             f = tk.filedialog.asksaveasfile(mode='wb', defaultextension=".sav")
             if f is not None: # asksaveasfile return `None` if dialog closed with "cancel".
                 pickle.dump(model2, open(f.name, 'wb'))
                 loaded_model = pickle.load(open(f.name, 'rb'))
-                f.close()
+                request.session["fname"] = f.name
+                exp = 1
+            f.close()    
+            root.destroy()
+            root.mainloop()
       
         if request.POST.get('save_results'):
             f = tk.filedialog.asksaveasfile(mode='wb', defaultextension=".csv")
@@ -372,6 +386,7 @@ def train(request):
                     f.close()
                             
         context = {'accuracy': request.session['predict'], 'predict_data': request.session['predict_data'], 'test_data': x2_test.values, 'div': div2, 'labels': list(sub), 'target': request.session['target'],
-        'result': result, 'proba': proba, 'way': way, 'analyse': list(analyse), 'analyse_data': x, 'name':names[request.session['max']]}
+        'result': result, 'proba': proba, 'way': way, 'analyse': list(analyse), 'analyse_data': x, 'name':names[request.session['max']], 'exp': exp, 'path': request.session["fname"],
+        'targets': targets, 'probaperc': probaperc, 'explan': explan}
     return render(request, 'ml/train.html', context)
 
