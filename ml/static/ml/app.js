@@ -55,7 +55,22 @@ $(document).ready(function(){
         $('iframe.iframe1').contents().find(".lime.top_div").css({"display":"flex","text-align":"center", 
         	"justify-content":"space-around","flex-wrap":"wrap","padding":"0 3%"});
 	});
-});
+
+	$(".closei").click(function(event){
+		$('#inddata').hide();
+	});
+
+	$(".closea").click(function(event){
+		$('#A').hide();
+		$('#loading').hide();
+	});
+
+	$(".closeb").click(function(event){
+		$('#B').hide();
+		$('#loading').hide();
+
+	});
+}); 
 
 //GRAY - IGNORE
 function reply_click(obj)
@@ -122,4 +137,10 @@ window.onclick = function(event) {
         document.getElementById('loading').style.display = "none";
 
     }
+    if (event.target == document.getElementById('B')) {
+        document.getElementById('B').style.display = "none";
+        document.getElementById('loading').style.display = "none";
+
+    }
 }
+

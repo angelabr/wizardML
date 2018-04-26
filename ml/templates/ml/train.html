@@ -28,6 +28,7 @@
 
 		<div id="inddata">
 			<div class="modal-content">
+				<span class="closei">&times;</span>
 				<a id="form-text"> Introduce your data manually</a><br/><br/>
 				{% for l in labels %}
 				<input name="{{l}}" type="text" placeholder="{{l}}" >
@@ -44,57 +45,66 @@
 		</div>
 
 	</div>
-	{% if way == 1 %}
-	<h2>Results</h2>
-	The predicted {{target}} is: {{result}}
-	Data analysed: {{analyse}}
-	With these probabilities: {{proba}}
-	{% endif %}
-
+	
 	{% if way == 2 %}
-	<input type="submit" name="save_results" value="Export to CSV"/>
-	<h2>Results</h2>
-	<div class="content">
-		<table> 
-			<th>Results</th>
-			<tr>
-				{% for sample in result %}	
-				<td>{{sample}}</td> 
-				{% endfor %}
-			</tr>
-			<tr>
-				{% for sample in proba %}	
-				<td>{{sample}}</td> 
-				{% endfor %}
-			</tr>
-		</table>
-	</div>
-
-	<div class="content">
-		<table> 
-			<tr>
+	<div  id="B" style="display: block !important;">
+		<div class="modal-content2 train-form">
+			<span class="closeb">&times;</span>
+			<a id="form-text" style="font-size:30px !important;">Results</a><br/><br/>
+			<a>Select a row and click on "Evaluate" to see more details.</a><br/>
+			{% if path.strip  %}
+			<a id="form-text2">Results saved in {{path}}</a><br/><br/>
+			{% else %}
+			<input type="submit" id="continue5" name="save_results" value="Save as CSV"/><br/><br/>
+			<br/>    
+			{% endif %}
+			<div id="lbls">	
+						<a></a>
 				{% for label in labels %}
-				<th>{{label}}</th>
-				{% endfor %}
-			</tr>
-			<tr>
-				<td>  </td>
-				{% for row in analyse_data %}
-				<tr><td>
-					<td><input name="results" type="radio" value="{{ forloop.counter }}">{% for sample in row %}	
-						{{sample}}
-					{% endfor %}</td>
+			<a>{{label}}
+			{% if forloop.last %}
+					</a><br/>
+					{% else %}
+					|
+					{% endif %}
+			{% endfor %}
+		</div>
+<br/>	<br/>
+			<div class="content2">
+			
+		
+	
+				<div id="data">
+					
+	<br/>
+					{% for row in analyse_data %}
+					<input name="results" type="radio" id="res{{ forloop.counter }}" value="{{ forloop.counter }}">
+  					<label for="res{{ forloop.counter }}">
+  						<a>
+					{% for sample in row %}	
+					{{sample}}
+					{% if forloop.last %}
+				</a>
+					</label>
+					<br/>
+					{% else %}
+					, 
+					{% endif %}
+					{% endfor %}
+					{% endfor %}
+				</div>
+				<div class="results">
+					<br/>
+					{% for sample in result %}	
+					<a><b>{{sample}}</b></a> <br/>
+					{% endfor %}
+				</div>
+			</div>
+			<br/><br/>
 
-				</td> </tr>
-				{% endfor %}
-			</tr>
-			<tr>
-				<td>  </td>
-			</tr>
-		</table>
+			<input type="submit" id="continue6" value="Evaluate" />
+		</div>
 	</div>
-	<input type="submit" value="Get analysis" />
-	{% endif %}
 
 
 	{% if div == 1 %}
@@ -103,27 +113,50 @@
 		<div id="A" style="display: none !important;">
 			{% endif %}
 			<div class="modal-content train-form">
+				<span class="closea">&times;</span>
 				<a id="form-text">The predicted {{target}} is: {{result}}</a><br/><br/>
-				<a>Data analysed: {{analyse}}</a><br/><br/>
+				<a>Data analysed: <i>{{analyse}}</i></a><br/><br/>
 				<a>With these probabilities for each cathegory:</a><br/><br/>
 				<div id="tabla">
-				<table>
-					<tr>
-						{% for target in targets %}
-						<th>{{target}}</th>
-						{% endfor %}
-					</tr>
-					<tr>
-						{% for pro in probaperc %}
-						<td>&nbsp;&nbsp;{{pro}}%&nbsp;&nbsp;</td>
-						{% endfor %}
-					</tr>
-				</table><br/><br/>
-			</div>
+					<table>
+						<tr>
+							{% for target in targets %}
+							<th>{{target}}</th>
+							{% endfor %}
+						</tr>
+						<tr>
+							{% for pro in probaperc %}
+							<td>&nbsp;&nbsp;{{pro}}%&nbsp;&nbsp;</td>
+							{% endfor %}
+						</tr>
+					</table><br/>
+				</div>
+				<a style="color:#704e96;"> Here you can find which features were important to get the result.</a><br/>
+				<a style="color:#704e96;">They are ordered by decreasing importance. More information is offered in the image below.</a><br/><br/>
+
+				<a> Positive features for the result:</a><br/>
+				{% for x in explanpos %}
+				{% for i in x %}
+				{% if forloop.first %}
+				<i><a>{{i}} &nbsp;</a></i>
+				{% endif %}
+				{% endfor %}
+				{% endfor %}
+				<br/><br/>
+				<a> Negative features for the result:</a><br/>
+				{% for x in explanneg %}
+				{% for i in x %}
+				{% if forloop.first %}
+				<i><a>{{i}} &nbsp;</a></i>
+				{% endif %}
+				{% endfor %}
+				{% endfor %}
+				<br/><br/>
 				<iframe name="iframe1" class="iframe1" id="encoder_iframe" height="65%" width="55%" src="{% url 'ml:oi' %}">
 				</iframe>
 			</div>
 
 		</div>
+		{% endif %}
 
 	</form>

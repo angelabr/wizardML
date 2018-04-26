@@ -24,7 +24,7 @@
 	<form action="{% url 'ml:results'%}" method="post" enctype="multipart/form-data" id="file-form">{% csrf_token %}
 		<img id="form-img" src= "{% static 'ml/images/dataset.png' %}"><br/><br/>
 
-		<a id="form-text">Let's start by uploading the data you want to analyse.</a><br/><br/>
+		<a id="form-text">Let's start by uploading some training data for building your analysis system.</a><br/><br/>
 		<a>All we need is a</a> <a id="form-text2" href="https://www.computerhope.com/issues/ch001356.htm" target="_blank">CSV file</a> <a> with values separated by commas.</a><br/><br/>
 
 		<input type="file" name="csv_file" id="file" class="inputfile">

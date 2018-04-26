@@ -253,9 +253,11 @@ def train(request):
         way = 0
         div2 = 0
         exp = 0
+        exp2 = 0
         request.session["fname"] = ""
         probaperc=[]
-        explan=[]
+        explanpos=[]
+        explanneg=[]
         targets=[]
         #labels for results analysis
         #IF DATA HAS BEEN INTRODUCED MANUALLY
@@ -265,11 +267,13 @@ def train(request):
             #sc = StandardScaler()
             scaler = MinMaxScaler()
             x = pandas.DataFrame(analyse)
+            request.session['x'] = x.values.tolist()
             x = scaler.fit_transform(x)
             x2 = x.flatten()
             x = numpy.reshape(x,(1,len(x)))      
             x = pandas.DataFrame(x.tolist())
             result = model2.predict(x).item(0)
+            request.session['result'] = result
             proba = model2.predict_proba(x)
             for x in proba.tolist()[0]:
                 x = round(x, 5)
@@ -290,11 +294,19 @@ def train(request):
                 a.write(line)
                 print(".")
             a.close()
-            explan = exp2.as_list(model2.predict([df.as_matrix()])[0])
+            explanx = exp2.as_list(model2.predict([df.as_matrix()])[0])
+            for x in explanx:
+                if x[1] > 0:
+                    if x[1] > 0.005:
+                        explanpos.append(x)
+                if x[1] < 0:
+                    if x[1] < -0.005:
+                        explanneg.append(x)
             div2 = 1
             x = x2
 
-        if request.FILES and request.POST.get('evaluate'):
+        if request.FILES.get('csv_evaluate'):
+
             file = request.FILES['csv_evaluate']
             reader = pandas.read_csv(file)
     ########################################################
@@ -328,9 +340,11 @@ def train(request):
             request.session['result'] = result.tolist()
             way = 2
             x = x.values
+            x = x.tolist()
+         
+
 
         if request.POST.get('results'):
-            div2 = 1
             x = request.session['xs'][int(request.POST.get('results'))-1]
             x = numpy.array(x)
             x2 = x.tolist()
@@ -356,6 +370,8 @@ def train(request):
                 print(".")
             a.close()
             x = x2
+           
+
 
         if request.POST.get('save_model'):
             root = tk.Tk()
@@ -370,6 +386,8 @@ def train(request):
             root.mainloop()
       
         if request.POST.get('save_results'):
+            exp2 = 0
+            root = tk.Tk()
             f = tk.filedialog.asksaveasfile(mode='wb', defaultextension=".csv")
             if f is not None: # asksaveasfile return `None` if dialog closed with "cancel". 
                 with open(f.name, 'w', newline='') as csvfile:
@@ -382,11 +400,15 @@ def train(request):
                     for sample in request.session['x']:
                         sample.append(request.session['result'][i])
                         writer.writerow(sample)
-                        i += 1    
-                    f.close()
+                        i += 1
+                request.session["fname"] = f.name
+                exp2 = 1            
+            way = 2
+            root.destroy()
+            root.mainloop()
                             
         context = {'accuracy': request.session['predict'], 'predict_data': request.session['predict_data'], 'test_data': x2_test.values, 'div': div2, 'labels': list(sub), 'target': request.session['target'],
-        'result': result, 'proba': proba, 'way': way, 'analyse': list(analyse), 'analyse_data': x, 'name':names[request.session['max']], 'exp': exp, 'path': request.session["fname"],
-        'targets': targets, 'probaperc': probaperc, 'explan': explan}
+        'result': request.session['result'], 'proba': proba, 'way': way, 'analyse': list(analyse), 'analyse_data': request.session['x'], 'name':names[request.session['max']], 'exp': exp, 'path': request.session["fname"],
+        'targets': targets, 'probaperc': probaperc, 'explanpos': explanpos, 'explanneg': explanneg}
     return render(request, 'ml/train.html', context)
 
