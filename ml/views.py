@@ -245,7 +245,9 @@ def train(request):
            if (lbl.label_name not in request.session['target']) and (lbl.label_name not in request.session['ignored']):   
                 features.append(lbl.label_name)
 
-        #some initializations        
+        #some initializations
+        if 'result' not in request.session:
+            request.session['result'] = 0        
         result, proba = 0, []        
         analyse = []
         tmp = six.StringIO()
@@ -338,6 +340,7 @@ def train(request):
             proba = model2.predict_proba(x)
             request.session['proba'] = proba.tolist()
             request.session['result'] = result.tolist()
+            request.session['resultx'] = result.tolist()
             way = 2
             x = x.values
             x = x.tolist()
@@ -345,13 +348,18 @@ def train(request):
 
 
         if request.POST.get('results'):
+
             x = request.session['xs'][int(request.POST.get('results'))-1]
             x = numpy.array(x)
             x2 = x.tolist()
             x = numpy.reshape(x,(1,len(x)))      
             x = pandas.DataFrame(x)
             proba = request.session['proba'][int(request.POST.get('results'))-1]
+            for y in proba:
+                y = round(y, 5)
+                probaperc.append(y*100)
             result = model2.predict(x)
+            request.session['result'] = result.item(0)
             targets = set(numpy.array(total[request.session['target']]))
             targets = ''.join(str(e) for e in targets)  
                       #LIME explanator
@@ -369,8 +377,17 @@ def train(request):
                 a.write(line)
                 print(".")
             a.close()
+            explanx = exp2.as_list(model2.predict([df.as_matrix()])[0])
+            for x in explanx:
+                if x[1] > 0:
+                    if x[1] > 0.005:
+                        explanpos.append(x)
+                if x[1] < 0:
+                    if x[1] < -0.005:
+                        explanneg.append(x)
             x = x2
-           
+            analyse =request.session['x'][int(request.POST.get('results'))-1]    
+            div2 = 1
 
 
         if request.POST.get('save_model'):
@@ -398,7 +415,7 @@ def train(request):
                     writer.writerow(lbls)
                     i = 0
                     for sample in request.session['x']:
-                        sample.append(request.session['result'][i])
+                        sample.append(request.session['resultx'][i])
                         writer.writerow(sample)
                         i += 1
                 request.session["fname"] = f.name

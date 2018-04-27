@@ -534,7 +534,7 @@ input[type="checkbox"][disabled] + .slider{
 #B{
     position: fixed; /* Stay in place */
     z-index: 1; /* Sit on top */
-    padding-top: 35px; /* Location of the box */
+    padding-top: 18px; /* Location of the box */
     left: 0;
     top: 0;
     width: 100%; /* Full width */
@@ -560,7 +560,7 @@ input[type="checkbox"][disabled] + .slider{
     border: 1px solid #888;
     border-radius: 12px;
     width: 70%; /* Could be more or less, depending on screen size */
-    height: 85%;
+    height: 90%;
 }
 
 .modal-content input[type=text] {
@@ -606,7 +606,15 @@ input[type="checkbox"][disabled] + .slider{
 	height: 65%;
     margin: 0 auto;
     overflow: auto;
-    width: 80%;
+    width: 87%;
+  	cursor: move;
+  	 -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */ 
 }
 
 .results{
@@ -615,9 +623,8 @@ input[type="checkbox"][disabled] + .slider{
     float: left;
     background: #e6eedd;
     padding-left: 12px;
-    padding-right: 10px;
     padding-right: 8px;
-    border-radius: 14px;
+    border-radius: 14px; 
 }
 
 #data{
@@ -626,8 +633,11 @@ input[type="checkbox"][disabled] + .slider{
 	background-color: #e5ddee;
 	border-radius: 14px;
 	float:left;
-	margin-left: 2px;
     padding-left: 20px;
+    white-space: nowrap;
+    overflow: hidden; 
+    text-overflow: ellipsis;
+    width: 986px;
 }
 
 #data a{
@@ -635,7 +645,7 @@ input[type="checkbox"][disabled] + .slider{
 }
 
 .results a{
-	    line-height: 30px;
+	line-height: 30px;
 	font-size: 16px;
 }
 
@@ -673,7 +683,6 @@ input[type="checkbox"][disabled] + .slider{
 #data input[type="radio"]:checked + label {
 	padding-top: 2px;
 	padding-bottom: 2px;
-  color: #fff;
   line-height: 25px;
   font-weight: bold;
 }

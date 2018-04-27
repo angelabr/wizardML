@@ -51,7 +51,7 @@
 		<div class="modal-content2 train-form">
 			<span class="closeb">&times;</span>
 			<a id="form-text" style="font-size:30px !important;">Results</a><br/><br/>
-			<a>Select a row and click on "Evaluate" to see more details.</a><br/>
+			<a>Select a row and click on "Evaluate" to see more details.</a><br/><br/>
 			{% if path.strip  %}
 			<a id="form-text2">Results saved in {{path}}</a><br/><br/>
 			{% else %}
@@ -59,32 +59,32 @@
 			<br/>    
 			{% endif %}
 			<div id="lbls">	
-						<a></a>
+				<a></a>
 				{% for label in labels %}
-			<a>{{label}}
-			{% if forloop.last %}
-					</a><br/>
-					{% else %}
-					|
-					{% endif %}
-			{% endfor %}
-		</div>
-<br/>	<br/>
+				<a>{{label}}
+					{% if forloop.last %}
+				</a><br/>
+				{% else %}
+				|
+				{% endif %}
+				{% endfor %}
+			</div>
+			<br/>	<br/>
 			<div class="content2">
-			
-		
-	
+
+
+
 				<div id="data">
 					
-	<br/>
+					<br/>
 					{% for row in analyse_data %}
 					<input name="results" type="radio" id="res{{ forloop.counter }}" value="{{ forloop.counter }}">
-  					<label for="res{{ forloop.counter }}">
-  						<a>
-					{% for sample in row %}	
-					{{sample}}
-					{% if forloop.last %}
-				</a>
+					<label for="res{{ forloop.counter }}">
+						<a>
+							{% for sample in row %}	
+							{{sample}}
+							{% if forloop.last %}
+						</a>
 					</label>
 					<br/>
 					{% else %}
@@ -105,7 +105,7 @@
 			<input type="submit" id="continue6" value="Evaluate" />
 		</div>
 	</div>
-
+		{% endif %}
 
 	{% if div == 1 %}
 	<div  id="A" style="display: block !important;">
@@ -157,6 +157,6 @@
 			</div>
 
 		</div>
-		{% endif %}
+		
 
 	</form>
