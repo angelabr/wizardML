@@ -4,41 +4,57 @@
     justify-content: center;
 }
 .index-text{
-	width: 300px;
+	width: 340px;
 	text-align: right;
-	margin-top: 15%;
+	margin-top: 10%;
 	float: left;
-	margin-right: 30px;
+	margin-right: 2%;
 
 }
 .index-text h1{
 	color: #704e96;
 	font-family: 'Quicksand', sans-serif;
-	font-size: 35px;
+	font-size: 40px;
 }
 
 .index-text a{
 	color: #595959;
 	font-family: 'Varela Round', sans-serif;
-	font-size: 20px;
+	font-size: 25px;
 
 }
 
-.index-text button, #continue, #continue2, #continue3, #continue4, #getstarted, #continue5, #continue6{
+.index-text button, #getstarted{
 	-webkit-border-radius: 11;
 	-moz-border-radius: 11;
 	border-radius: 8px;
 	color: #ffffff;
 	background: #704e96;
-	padding: 10px 100px 10px 100px;
+	padding: 15px 100px 15px 100px;
 	text-decoration: none;
 	border: none;
 	font-family: 'Quicksand', sans-serif;
-	font-size: 18px;
+	font-size: 24px;
 	font-weight: bold;
-	margin-top: 25px;
+	margin-top: 5%;
+	width: 100%;
 }
 
+#continue, #continue2, #continue3, #continue4, #continue5, #continue6{
+	-webkit-border-radius: 11;
+	-moz-border-radius: 11;
+	border-radius: 8px;
+	color: #ffffff;
+	background: #704e96;
+	padding: 15px 100px 15px 100px;
+	text-decoration: none;
+	border: none;
+	font-family: 'Quicksand', sans-serif;
+	font-size: 24px;
+	font-weight: bold;
+	margin-top: 5%;
+	width: 300px;
+}
 .index-text button:hover,#left #continue2:hover, #continue:hover, #continue3:hover, #continue4:hover, #getstarted:hover, #continue5:hover, #continue6:hover {
 	background: #8a68b1;
 	text-decoration: none;
@@ -46,31 +62,31 @@
 }
 
 .index-img{
-	margin-right:10px;
-	margin-top: 17%;
+	margin-right:2%;
+	margin-top: 13%;
 	float:left;
 }
 
 .index-img img{
-	height: 271px;
+	height: 19em;
 }
 
 .index-form{
 	display:none;
-	margin-top: 15%;
+	margin-top: 10%;
 	text-align: center;
 }
 
 .index-form a{
 	color: #595959;
 	font-family: 'Varela Round', sans-serif;
-	font-size: 18px;
+	font-size: 22px;
 
 }
 
 .index-form img{
-	width: 100px;
-	height: 100px;
+	width: 130px;
+	height: 130px;
 }
 .index-form #form-text2:hover{
 	color: #704e96;
@@ -80,7 +96,7 @@
 .index-form #form-text{
 	color: #704e96;
 	font-family: 'Quicksand', sans-serif;
-	font-size: 22px;
+	font-size: 26px;
 	font-weight: bold;
 
 }
@@ -97,16 +113,16 @@
 .inputfile + label {
     font-family: 'Quicksand', sans-serif;
     font-weight: bold;
-	font-size: 14px;
+	font-size: 21px;
     border-radius: 8px;
 	color: #ffffff;
 	background: #704e96;
-	padding: 10px 50px 10px 50px;
+	padding: 15px 50px 15px 50px;
 	text-decoration: none;
 	border: none;
     display: inline-block;
     cursor: pointer;
-    width: 135px;
+    width: 200px;
 }
 
 .inputfile:focus + label,
@@ -122,24 +138,25 @@
 }
 
 .material-icons {
+	font-size: 32px !important;
 	float: left;
 	margin-left: 10px;
     margin-right: -17px;
 }
 
 #choose{
-	margin-top: 3px;
+	margin-top: 1%;
 }
 
 #loading{
-	width: 32px;
-	height: 32px;
+	width: 45px;
+	height: 45px;
 }
 
 /* RESULTS.HTML */
 
 .result-text{
-	margin-top: 5%;
+	margin-top: 3%;
     text-align: center;
     margin-left: auto;
     margin-right: auto;
@@ -167,7 +184,7 @@
 }
 
 #miniinfo{
-	font-size: 13px;
+	font-size: 15px;
 	display: none;
 	color: #565656;
 }
@@ -178,7 +195,7 @@
 }
 
 #samples{
-	max-height: 500px;
+	max-height: 55%;
     overflow: auto;
  	white-space: nowrap;
  	width: 70%;
@@ -359,14 +376,14 @@ input[type="checkbox"][disabled] + .slider{
 /*CONFIRM.HTML*/
 
 .confirm-form{
-	margin-top: 15%;
+	margin-top: 12%;
 	text-align: center;
 }
 
 .confirm-form #form-text{
 	color: #704e96;
 	font-family: 'Quicksand', sans-serif;
-	font-size: 22px;
+	font-size: 30px;
 	font-weight: bold;
 
 }
@@ -374,23 +391,23 @@ input[type="checkbox"][disabled] + .slider{
 .confirm-form a{
 	color: #595959;
 	font-family: 'Varela Round', sans-serif;
-	font-size: 18px;
+	font-size: 22px;
 
 }
 
 .inputfile2 + label {
     font-family: 'Quicksand', sans-serif;
     font-weight: bold;
-	font-size: 18px;
+    font-size: 22px;
     border-radius: 8px;
-	color: #ffffff;
-	background: #704e96;
-	padding: 10px 25px 10px 25px;
-	text-decoration: none;
-	border: none;
+    color: #ffffff;
+    background: #704e96;
+    padding: 13px 75px 13px 75px;
+    text-decoration: none;
+    border: none;
     display: inline-block;
-    cursor: pointer;
-   	width: 100px;
+    cursor: pointer; 
+    width: 125px;
 }
 
 #right i{
@@ -399,7 +416,7 @@ input[type="checkbox"][disabled] + .slider{
 }
 
 #left{
-	margin-right: 30px;
+	margin-right: 2%;
 }
 
 #buttons{
@@ -416,30 +433,30 @@ input[type="checkbox"][disabled] + .slider{
 	-webkit-border-radius: 11;
 	-moz-border-radius: 11;
 	border-radius: 8px;
-	color: #ffffff;
-	background: #704e96;
-	padding: 10px 100px 10px 50px;
-	text-decoration: none;
-	border: none;
-	font-family: 'Quicksand', sans-serif;
-	font-size: 18px;
-	font-weight: bold;
-	margin-top: 25px;
-	width: 100px;
-	text-align: center;
+    color: #ffffff;
+    background: #704e96;
+    padding: 15px 100px 15px 95px;
+    text-decoration: none;
+    border: none;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 22px;
+    font-weight: bold;
+    margin-top: 8%;
+    width: 275px;
+    text-align: center;
 }
 
 /*TRAIN.HTML*/
 
 .train-form{
-	margin-top: 15%;
+	margin-top: 8%;  
 	text-align: center;
 }
 
 .train-form #form-text{
-	color: #704e96;
+	color: #704e96; 
 	font-family: 'Quicksand', sans-serif;
-	font-size: 25px;
+	font-size: 30px;
 	font-weight: bold;
 
 }
@@ -454,7 +471,7 @@ input[type="checkbox"][disabled] + .slider{
 .train-form a{
 	color: #595959; 
 	font-family: 'Varela Round', sans-serif;
-	font-size: 18px;
+	font-size: 22px;
 
 }
 
@@ -465,50 +482,55 @@ input[type="checkbox"][disabled] + .slider{
 
 }
 .train-form #continue3{
-	width: 200px;
-	padding: 10px 100px 10px 42px;
+	width: 250px;
+    padding: 10px 100px 10px 48px;
+    margin-top: 4%;
+    margin-bottom: 2%;
 }
 
 .train-form #continue4 {
-	width: 200px;
-	padding: 10px 100px 10px 62px;
+	width: 250px;
+    padding: 10px 100px 10px 77px;
 }
 
 .train-form #continue5 {
-	width: 200px;
-	padding: 10px 100px 10px 48px;
+	width: 250px;
+	padding: 10px 100px 10px 56px;
+	margin-top: 2%;
+
 }
 .train-form #continue6 {
-	width: 200px;
-	padding: 10px 100px 10px 62px;
-	margin-top: 0px !important;
+	width: 250px;
+    padding: 10px 100px 10px 78px;
+	margin-top: 0 !important;
+
 }
 
 #buttonsdata #getstarted{
-    width: 170px;
+    width: 250px;
     padding: 10px 25px 10px 25px;
-    margin-right: 30px;
+    margin-right: 2%;
 }
 
 #buttonsdata .inputfile2 + label {
     font-family: 'Quicksand', sans-serif;
     font-weight: bold;
-	font-size: 18px;
+    font-size: 22px;
     border-radius: 8px;
-	color: #ffffff;
-	background: #704e96;
-	padding: 10px 25px 10px 25px;
-	text-decoration: none;
-	border: none;
+    color: #ffffff;
+    background: #704e96;
+    padding: 12px 75px 7px 75px;
+    text-decoration: none;
+    border: none;
     display: inline-block;
-    cursor: pointer;
-   	width: 120px;
+    cursor: pointer; 
+    width: 125px;
 }
  
 #inddata{
     position: fixed; /* Stay in place */
     z-index: 1; /* Sit on top */
-    padding-top: 150px; /* Location of the box */
+    padding-top: 5%; /* Location of the box */
     left: 0;
     top: 0;
     width: 100%; /* Full width */
@@ -534,13 +556,23 @@ input[type="checkbox"][disabled] + .slider{
 #B{
     position: fixed; /* Stay in place */
     z-index: 1; /* Sit on top */
-    padding-top: 18px; /* Location of the box */
+    padding-top: 2%; /* Location of the box */
     left: 0;
     top: 0;
     width: 100%; /* Full width */
     height: 100%; /* Full height */ 
     background-color: rgb(0,0,0); /* Fallback color */
     background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+.modal-content3 { 
+    background-color: #fefefe;
+    margin: auto; /* 15% from the top and centered */
+    padding: 30px;
+    border: 1px solid #888;
+    border-radius: 12px;
+    width: 70%; /* Could be more or less, depending on screen size */
+    height: 85%;
+    overflow: auto;
 }
 
 .modal-content { 
@@ -550,7 +582,7 @@ input[type="checkbox"][disabled] + .slider{
     border: 1px solid #888;
     border-radius: 12px;
     width: 70%; /* Could be more or less, depending on screen size */
-
+    overflow: auto;
 }
 
 .modal-content2 {
@@ -559,11 +591,16 @@ input[type="checkbox"][disabled] + .slider{
     padding: 30px;
     border: 1px solid #888;
     border-radius: 12px;
-    width: 70%; /* Could be more or less, depending on screen size */
-    height: 90%;
+    width: 75%; /* Could be more or less, depending on screen size */
+    height: 85%;
+    overflow: auto;
 }
 
-.modal-content input[type=text] {
+#dataanalysed{
+	font-size: 18px;
+}
+
+.modal-content input[type=text], .modal-content3 input[type=text] {
     width: 20%;
     padding: 12px 20px;
     margin: 8px 0;
@@ -602,8 +639,9 @@ input[type="checkbox"][disabled] + .slider{
     cursor: pointer;
 }
 
+@media screen and (max-height: 760px){
 .content2{
-	height: 65%;
+	height: 45%;
     margin: 0 auto;
     overflow: auto;
     width: 87%;
@@ -616,6 +654,25 @@ input[type="checkbox"][disabled] + .slider{
     user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */ 
 }
+}
+
+@media screen and (min-height: 761px){
+.content2{
+	height: 55%;
+    margin: 0 auto;
+    overflow: auto;
+    width: 87%;
+  	cursor: move;
+  	 -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */ 
+}
+}
+
 
 .results{
 	display: inline-block;
@@ -637,7 +694,7 @@ input[type="checkbox"][disabled] + .slider{
     white-space: nowrap;
     overflow: hidden; 
     text-overflow: ellipsis;
-    width: 986px;
+    width: 90%;
 }
 
 #data a{

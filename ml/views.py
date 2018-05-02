@@ -56,15 +56,15 @@ def results(request):
 
         reader = pandas.read_csv(file)
 ########################################################
-        # reviews = []
-        # for i in reader['quality']:
-        #     if i >= 3 and i <= 5:
-        #         reviews.append('1')
-        #     elif i >= 6 and i <= 6:
-        #         reviews.append('2')
-        #     elif i >= 7 and i <= 8:
-        #         reviews.append('3')
-        # reader['Reviews'] = reviews
+        #reviews = []
+        #for i in reader['quality']: 
+        #    if i >= 3 and i <= 5:
+        #        reviews.append('1')
+        #    elif i >= 6 and i <= 6:
+        #        reviews.append('2')
+        #    elif i >= 7 and i <= 8:
+        #        reviews.append('3')
+        #reader['Reviews'] = reviews
 ########################################################
         #get first row as labels
         labels = list(reader)
@@ -163,6 +163,7 @@ def train(request):
                 sub = sub.drop(ig, 1)
         x = sub.sort_index(axis=1)
         scaler = MinMaxScaler()
+        x3 = x
         x = scaler.fit_transform(x)
         x = pandas.DataFrame(x.tolist())
 
@@ -189,6 +190,7 @@ def train(request):
             print ("aqui")
             model2 = pickle.load(request.FILES.get("model_file"))
             print(model2)
+            request.session['done'] = 1 
         else:
             #compare all the classifier, store their scores
             if request.session['done'] is not 1:
@@ -227,7 +229,8 @@ def train(request):
                 print(predict)
                 request.session['predict'] = predict.tolist()
                 request.session['predict_data'] = predict_data.tolist()
-                request.session['done'] = 1    
+                request.session['done'] = 1 
+                request.session['x'] = x3.values.tolist()   
             
             else:
                 model2=pickle.load(open('tmp_model.sav', 'rb'))
@@ -312,15 +315,15 @@ def train(request):
             file = request.FILES['csv_evaluate']
             reader = pandas.read_csv(file)
     ########################################################
-            # reviews = []
-            # for i in reader['quality']:
-            #     if i >= 3 and i <= 5:
-            #         reviews.append('1')
-            #     elif i >= 6 and i <= 6:
-            #         reviews.append('2')
-            #     elif i >= 7 and i <= 8:
-            #         reviews.append('3')
-            # reader['Reviews'] = reviews
+            #reviews = []
+            #for i in reader['quality']:
+            #    if i >= 3 and i <= 5:
+            #        reviews.append('1')
+            #    elif i >= 6 and i <= 6:
+            #        reviews.append('2')
+            #    elif i >= 7 and i <= 8:
+            #        reviews.append('3')
+            #reader['Reviews'] = reviews
     ########################################################
             sub = reader
             if request.session['target'] in list(reader):
@@ -377,14 +380,19 @@ def train(request):
                 a.write(line)
                 print(".")
             a.close()
-            explanx = exp2.as_list(model2.predict([df.as_matrix()])[0])
-            for x in explanx:
-                if x[1] > 0:
-                    if x[1] > 0.005:
-                        explanpos.append(x)
-                if x[1] < 0:
-                    if x[1] < -0.005:
-                        explanneg.append(x)
+            try:
+                explanx = exp2.as_list(model2.predict([df.as_matrix()])[0])
+                for x in explanx:
+                    if x[1] > 0:
+                        if x[1] > 0.005:
+                            explanpos.append(x)
+                    if x[1] < 0:
+                        if x[1] < -0.005:
+                            explanneg.append(x)
+            except KeyError as error:
+                explanpos = [["See image below"]]      
+                explanneg = [["See image below"]]                 
+          
             x = x2
             analyse =request.session['x'][int(request.POST.get('results'))-1]    
             div2 = 1

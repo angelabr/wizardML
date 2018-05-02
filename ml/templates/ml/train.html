@@ -22,14 +22,14 @@
 			<button type="button" id="getstarted" class="manually">Manually</button>
 			<input type="file" name="csv_evaluate" id="file" class="inputfile2" onchange="this.form.submit()" >
 			<label for="file"><i class="material-icons">file_upload</i>&nbsp;Upload</label></input>
-			<br/><br/>
+			<br/><br/><br/>
 			<img id="loading" src= "{% static 'ml/images/loading.gif' %}">
 		</div>
 
 		<div id="inddata">
 			<div class="modal-content">
 				<span class="closei">&times;</span>
-				<a id="form-text"> Introduce your data manually</a><br/><br/>
+				<a id="form-text"> Introduce your data manually</a><br/><br/><br/>
 				{% for l in labels %}
 				<input name="{{l}}" type="text" placeholder="{{l}}" >
 				{% endfor %}
@@ -112,10 +112,10 @@
 		{% else %}
 		<div id="A" style="display: none !important;">
 			{% endif %}
-			<div class="modal-content train-form">
+			<div class="modal-content3 train-form">
 				<span class="closea">&times;</span>
 				<a id="form-text">The predicted {{target}} is: {{result}}</a><br/><br/>
-				<a>Data analysed: <i>{{analyse}}</i></a><br/><br/>
+				<a id="dataanalysed">Data analysed: <i>{{analyse}}</i></a><br/><br/>
 				<a>With these probabilities for each cathegory:</a><br/><br/>
 				<div id="tabla">
 					<table>
@@ -138,7 +138,7 @@
 				{% for x in explanpos %}
 				{% for i in x %}
 				{% if forloop.first %}
-				<i><a>{{i}} &nbsp;</a></i>
+				<i><a id="dataanalysed">{{i}} &nbsp;</a></i>
 				{% endif %}
 				{% endfor %}
 				{% endfor %}
@@ -147,12 +147,12 @@
 				{% for x in explanneg %}
 				{% for i in x %}
 				{% if forloop.first %}
-				<i><a>{{i}} &nbsp;</a></i>
+				<i><a id="dataanalysed">{{i}} &nbsp;</a></i>
 				{% endif %}
 				{% endfor %}
 				{% endfor %}
 				<br/><br/>
-				<iframe name="iframe1" class="iframe1" id="encoder_iframe" height="65%" width="55%" src="{% url 'ml:oi' %}">
+				<iframe name="iframe1" class="iframe1" id="encoder_iframe" height="65%" width="80%" src="{% url 'ml:oi' %}">
 				</iframe>
 			</div>
 
