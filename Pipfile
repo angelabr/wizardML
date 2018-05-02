@@ -5,6 +5,18 @@ name = "pypi"
 
 [packages]
 
+dj-database-url = "*"
+django = "*"
+gunicorn = "*"
+psycopg2 = "*"
+django-static-jquery = "*"
+pandas = "*"
+sklearn = "*"
+scipy = "*"
+lime = "*"
+plotly = "*"
+psycopg2-binary = "*"
+
 [dev-packages]
 
 [requires]
