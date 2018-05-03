@@ -39,7 +39,6 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.gaussian_process import GaussianProcessClassifier
 from sklearn.neural_network import MLPClassifier
-import tkinter.filedialog
 import time
 from django.http import HttpResponse
 
