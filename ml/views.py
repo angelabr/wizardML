@@ -41,7 +41,8 @@ from sklearn.gaussian_process import GaussianProcessClassifier
 from sklearn.neural_network import MLPClassifier
 import tkinter.filedialog
 import time
-from mttkinter import mtTkinter as tk
+from django.http import HttpResponse
+
 #index page
 def index(request):
     return render(request, 'ml/index.html', locals())
@@ -259,7 +260,6 @@ def train(request):
         div2 = 0
         exp = 0
         exp2 = 0
-        request.session["fname"] = ""
         probaperc=[]
         explanpos=[]
         explanneg=[]
@@ -399,41 +399,37 @@ def train(request):
 
 
         if request.POST.get('save_model'):
-            root = tk.Tk()
-            f = tk.filedialog.asksaveasfile(mode='wb', defaultextension=".sav")
-            if f is not None: # asksaveasfile return `None` if dialog closed with "cancel".
-                pickle.dump(model2, open(f.name, 'wb'))
-                loaded_model = pickle.load(open(f.name, 'rb'))
-                request.session["fname"] = f.name
-                exp = 1
-            f.close()    
-            root.destroy()
-            root.mainloop()
-      
+            pickle.dump(model2, open('modelML.sav', 'wb'))
+            loaded_model = pickle.load(open('modelML.sav', 'rb'))
+            exp = 1
+            with open('modelML.sav', 'rb') as myfile:
+                response = HttpResponse(myfile, content_type='text')
+                response['Content-Disposition'] = 'attachment; filename=modelML.sav'
+                return response
+
         if request.POST.get('save_results'):
             exp2 = 0
-            root = tk.Tk()
-            f = tk.filedialog.asksaveasfile(mode='wb', defaultextension=".csv")
-            if f is not None: # asksaveasfile return `None` if dialog closed with "cancel". 
-                with open(f.name, 'w', newline='') as csvfile:
-                    writer = csv.writer(csvfile, delimiter=',',
-                                            quotechar='|', quoting=csv.QUOTE_MINIMAL)
-                    lbls = list(sub)
-                    lbls.append(request.session['target'])
-                    writer.writerow(lbls)
-                    i = 0
-                    for sample in request.session['x']:
-                        sample.append(request.session['resultx'][i])
-                        writer.writerow(sample)
-                        i += 1
-                request.session["fname"] = f.name
-                exp2 = 1            
+         
+            with open('resultsML.csv', 'w', newline='') as csvfile:
+                writer = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+                lbls = list(sub)
+                lbls.append(request.session['target'])
+                writer.writerow(lbls)
+                i = 0
+                exp2 = 1
+                for sample in request.session['x']:
+                   sample.append(request.session['resultx'][i])
+                   writer.writerow(sample)
+                   i += 1
+                            
             way = 2
-            root.destroy()
-            root.mainloop()
+            with open('resultsML.csv', 'rb') as myfile:
+                response = HttpResponse(myfile, content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename=resultsML.csv'
+                return response
                             
         context = {'accuracy': request.session['predict'], 'predict_data': request.session['predict_data'], 'test_data': x2_test.values, 'div': div2, 'labels': list(sub), 'target': request.session['target'],
-        'result': request.session['result'], 'proba': proba, 'way': way, 'analyse': list(analyse), 'analyse_data': request.session['x'], 'name':names[request.session['max']], 'exp': exp, 'path': request.session["fname"],
+        'result': request.session['result'], 'proba': proba, 'way': way, 'analyse': list(analyse), 'analyse_data': request.session['x'], 'name':names[request.session['max']], 'exp': exp, 
         'targets': targets, 'probaperc': probaperc, 'explanpos': explanpos, 'explanneg': explanneg}
     return render(request, 'ml/train.html', context)
 
