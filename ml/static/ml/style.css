@@ -6,7 +6,7 @@
 .index-text{
 	width: 340px;
 	text-align: right;
-	margin-top: 10%;
+	margin-top: 12.5%;
 	float: left;
 	margin-right: 2%;
 
@@ -15,6 +15,7 @@
 	color: #704e96;
 	font-family: 'Quicksand', sans-serif;
 	font-size: 40px;
+	margin-top: 0;
 }
 
 .index-text a{

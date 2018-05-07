@@ -34,6 +34,7 @@ import plotly.graph_objs as go
 import plotly.offline as opy
 import pickle
 import matplotlib
+from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
@@ -55,17 +56,6 @@ def results(request):
         #csvfile = TextIOWrapper(request.FILES['csv_file'].file, encoding='utf-8')
 
         reader = pandas.read_csv(file)
-########################################################
-        #reviews = []
-        #for i in reader['quality']: 
-        #    if i >= 3 and i <= 5:
-        #        reviews.append('1')
-        #    elif i >= 6 and i <= 6:
-        #        reviews.append('2')
-        #    elif i >= 7 and i <= 8:
-        #        reviews.append('3')
-        #reader['Reviews'] = reviews
-########################################################
         #get first row as labels
         labels = list(reader)
         nlabels = len(labels)
@@ -154,8 +144,19 @@ def train(request):
         print(request)    
         #get the whole dataset raw for easier processing
         total = pandas.read_json(request.session['dstfile'], orient='records')
-
+        total = total.fillna(0)
         #y for labels, x for features
+        le = LabelEncoder()
+        mylist = total[request.session['target']].values.tolist()
+        used = set()
+        unique = [x for x in mylist if x not in used and (used.add(x) or True)]
+        request.session['unique'] = unique
+        print(isinstance(total[[request.session['target']]].values[0][0], str))
+        if isinstance(total[[request.session['target']]].values[0][0], str):  
+            total[[request.session['target']]] = total[[request.session['target']]].apply(le.fit_transform)
+            request.session['string'] = 1
+        else:
+            request.session['string'] = 0
         y = total[[request.session['target']]]
         sub = total.drop(request.session['target'], 1)
         if request.session['ignored']:
@@ -166,6 +167,7 @@ def train(request):
         x3 = x
         x = scaler.fit_transform(x)
         x = pandas.DataFrame(x.tolist())
+      
 
         x2_train, x2_test, y2_train, y2_test = train_test_split(x, y, test_size = ((Dataset.objects.get(id = request.session['dataset']).test_percent)/100))
         
@@ -194,20 +196,23 @@ def train(request):
         else:
             #compare all the classifier, store their scores
             if request.session['done'] is not 1:
-                tuned_parameters = [dict(n_neighbors=list(range(1, 31))),
+                tuned_parameters = [dict(n_neighbors=list(range(1, int(len(total)/2)))),
                             {'C': [1, 10, 100, 1000]},
                             {'gamma': [1e-3, 1e-4], 'C': [1, 10, 100, 1000]},
-                            {'n_estimators': [16, 32],'max_depth':[4,5,6,7,8,9,10,11,12,15,20,30,40,50,70,90,120,150]},
+                            {'max_depth':[4,5,6,7,8,9,10,11,12,15,20,30,40,50,70,90,120,150]},
                             {'n_estimators': [200, 700], 'max_features': ['auto', 'sqrt', 'log2']},
-                            {'n_estimators': [1,5,10,20,30,40,50,60,70,80,90,100], 'learning_rate': [0.001, 0.01, 0.1, 1] },
+                            {'n_estimators': [1, 2], 'learning_rate': [0.001, 0.01, 0.1, 1], "base_estimator__criterion" : ["gini", "entropy"], "base_estimator__splitter" :   ["best", "random"], },
                             {'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000] }]
 
                 scs = []
                 for name, clf in zip(names, classifiers):
-                    clf.fit(x2_train, y2_train)
-                    score = clf.score(x2_test, y2_test)
-                    print("SCORE: "+str(score)+" NAME: "+name)
-                    scs.append(score)
+                    try:
+                        clf.fit(x2_train, y2_train)
+                        score = clf.score(x2_test, y2_test)
+                        print("SCORE: "+str(score)+" NAME: "+name)
+                        scs.append(score)
+                    except ValueError as error:
+                        print("Unsupported")    
                 #pick best classifier    
                 max_value = max(scs)
                 max_index = scs.index(max_value)
@@ -313,17 +318,6 @@ def train(request):
 
             file = request.FILES['csv_evaluate']
             reader = pandas.read_csv(file)
-    ########################################################
-            #reviews = []
-            #for i in reader['quality']:
-            #    if i >= 3 and i <= 5:
-            #        reviews.append('1')
-            #    elif i >= 6 and i <= 6:
-            #        reviews.append('2')
-            #    elif i >= 7 and i <= 8:
-            #        reviews.append('3')
-            #reader['Reviews'] = reviews
-    ########################################################
             sub = reader
             if request.session['target'] in list(reader):
                 y = reader[[request.session['target']]]
@@ -333,6 +327,7 @@ def train(request):
                     sub = sub.drop(ig, 1)
             sub = sub.sort_index(axis=1)
             x = sub
+            x = x.fillna(0)
             request.session['x'] = x.values.tolist()
             scaler = MinMaxScaler()
             x = scaler.fit_transform(x)
@@ -350,7 +345,7 @@ def train(request):
 
 
         if request.POST.get('results'):
-
+            
             x = request.session['xs'][int(request.POST.get('results'))-1]
             x = numpy.array(x)
             x2 = x.tolist()
@@ -361,10 +356,15 @@ def train(request):
                 y = round(y, 5)
                 probaperc.append(y*100)
             result = model2.predict(x)
-            request.session['result'] = result.item(0)
-            targets = set(numpy.array(total[request.session['target']]))
-            targets = ''.join(str(e) for e in targets)  
-                      #LIME explanator
+            print(request.session['string'])
+            if request.session['string'] is 1:
+                request.session['result'] = request.session['unique'][result.item(0)]
+                targets = request.session['unique']
+            else:
+                request.session['result'] = result.item(0)    
+                targets = set(numpy.array(total[request.session['target']]))
+                targets = ''.join(str(e) for e in targets)  
+            #LIME explanator
             explainer = lime.lime_tabular.LimeTabularExplainer(x2_train, feature_names=features, class_names=targets, discretize_continuous=False)
             df = pandas.Series(x2, list(sub), name='001')
             exp2 = explainer.explain_instance(df, model2.predict_proba, num_features=len(list(sub)), top_labels=1)
@@ -379,6 +379,7 @@ def train(request):
                 a.write(line)
                 print(".")
             a.close()
+
             try:
                 explanx = exp2.as_list(model2.predict([df.as_matrix()])[0])
                 for x in explanx:
@@ -417,9 +418,12 @@ def train(request):
                 i = 0
                 exp2 = 1
                 for sample in request.session['x']:
-                   sample.append(request.session['resultx'][i])
-                   writer.writerow(sample)
-                   i += 1
+                    if request.session['string'] is 1:
+                        sample.append(request.session['unique'][request.session['resultx'][i]]) 
+                    else: 
+                        sample.append(request.session['resultx'][i])
+                    writer.writerow(sample)
+                    i += 1
                             
             way = 2
             with open('resultsML.csv', 'rb') as myfile:
