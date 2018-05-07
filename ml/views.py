@@ -336,7 +336,13 @@ def train(request):
             result = model2.predict(x)
             proba = model2.predict_proba(x)
             request.session['proba'] = proba.tolist()
-            request.session['result'] = result.tolist()
+            auxresult = []
+            if request.session['string'] is 1:
+                for i in result.tolist():
+                   auxresult.append(request.session['unique'][i])
+                request.session['result'] = auxresult
+            else:
+                request.session['result'] = result.tolist()
             request.session['resultx'] = result.tolist()
             way = 2
             x = x.values
