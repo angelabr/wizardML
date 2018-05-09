@@ -255,7 +255,9 @@ def train(request):
 
         #some initializations
         if 'result' not in request.session:
-            request.session['result'] = 0        
+            request.session['result'] = 0
+        if 'button' not in request.session:
+            request.session['button'] = 0        
         result, proba = 0, []        
         analyse = []
         tmp = six.StringIO()
@@ -264,6 +266,7 @@ def train(request):
         div2 = 0
         exp = 0
         exp2 = 0
+        
         probaperc=[]
         explanpos=[]
         explanneg=[]
@@ -313,11 +316,18 @@ def train(request):
                         explanneg.append(x)
             div2 = 1
             x = x2
+            request.session['button'] = 2
 
-        if request.FILES.get('csv_evaluate'):
+        if request.FILES.get('csv_evaluate') or request.POST.get('eval_back'):
 
-            file = request.FILES['csv_evaluate']
-            reader = pandas.read_csv(file)
+            if request.FILES.get('csv_evaluate'):
+                file = request.FILES['csv_evaluate']
+                reader = pandas.read_csv(file)
+           
+                request.session['evalfile'] = reader.to_json(orient ='records')
+            else:
+                reader = pandas.read_json(request.session['evalfile'], orient='records')
+
             sub = reader
             if request.session['target'] in list(reader):
                 y = reader[[request.session['target']]]
@@ -347,6 +357,7 @@ def train(request):
             way = 2
             x = x.values
             x = x.tolist()
+            request.session['button'] = 1
          
 
 
@@ -439,6 +450,6 @@ def train(request):
                             
         context = {'accuracy': request.session['predict'], 'predict_data': request.session['predict_data'], 'test_data': x2_test.values, 'div': div2, 'labels': list(sub), 'target': request.session['target'],
         'result': request.session['result'], 'proba': proba, 'way': way, 'analyse': list(analyse), 'analyse_data': request.session['x'], 'name':names[request.session['max']], 'exp': exp, 
-        'targets': targets, 'probaperc': probaperc, 'explanpos': explanpos, 'explanneg': explanneg}
+        'targets': targets, 'probaperc': probaperc, 'explanpos': explanpos, 'explanneg': explanneg, 'button': request.session['button']}
     return render(request, 'ml/train.html', context)
 

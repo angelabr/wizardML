@@ -41,7 +41,7 @@
 	width: 100%;
 }
 
-#continue, #continue2, #continue3, #continue4, #continue5, #continue6{
+#continue, #continue2, #continue3, #continue4, #continue5, #continue6, #continue7, #continue8{
 	-webkit-border-radius: 11;
 	-moz-border-radius: 11;
 	border-radius: 8px;
@@ -56,7 +56,7 @@
 	margin-top: 5%;
 	width: 300px;
 }
-.index-text button:hover,#left #continue2:hover, #continue:hover, #continue3:hover, #continue4:hover, #getstarted:hover, #continue5:hover, #continue6:hover {
+.index-text button:hover,#left #continue2:hover, #continue:hover, #continue3:hover, #continue4:hover, #getstarted:hover, #continue5:hover, #continue6:hover, #continue7:hover, #continue8:hover {
 	background: #8a68b1;
 	text-decoration: none;
 	cursor: pointer;
@@ -531,7 +531,7 @@ input[type="checkbox"][disabled] + .slider{
 #inddata{
     position: fixed; /* Stay in place */
     z-index: 1; /* Sit on top */
-    padding-top: 5%; /* Location of the box */
+    padding-top: 11%; /* Location of the box */
     left: 0;
     top: 0;
     width: 100%; /* Full width */
@@ -757,4 +757,10 @@ input[type="checkbox"][disabled] + .slider{
   -webkit-transition: .25s all ease;
   -o-transition: .25s all ease;
   transition: .25s all ease;
+}
+
+.train-form #continue7, .train-form #continue8 {
+    width: 250px;
+    padding: 10px 100px 10px 97px;
+    margin-top: 2%;
 }

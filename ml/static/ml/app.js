@@ -44,7 +44,10 @@ $(document).ready(function(){
 	$(".manually").click(function(event){
 		$('#inddata').show();
 	});
-
+	$("#continue8").click(function(event){
+		$('#A').hide();
+		$('#inddata').show();
+	});
 	$("#continue4").click(function(event){
 		$('#inddata').hide();
 		$('#loading').show();
@@ -54,6 +57,23 @@ $(document).ready(function(){
         $('iframe.iframe1').contents().find(".lime.table_div").hide();
         $('iframe.iframe1').contents().find(".lime.top_div").css({"display":"flex","text-align":"center", 
         	"justify-content":"space-around","flex-wrap":"wrap","padding":"0 3%"});
+
+        for (i=0; i<($('iframe.iframe1').contents().find(".lime.explanation svg rect").length); ++i) {
+			var oldW = $($('iframe.iframe1').contents().find(".lime.explanation svg rect")[i].outerHTML).attr('width');
+			var oldex = $($('iframe.iframe1').contents().find(".lime.explanation svg rect")[i].outerHTML).attr('x');
+			var old = 'width="';
+			var oldWidth = old.concat(oldW,'"')
+			var newWidth = old.concat(oldW*6, '"')
+			var ex = 'x="'
+			var oldEX = ex.concat(oldex, '"')
+			var newex = oldex - (oldW*6 - oldW)
+			var newEX = ex.concat(newex, '"')
+			$('iframe.iframe1').contents().find(".lime.explanation svg rect")[i].outerHTML = $('iframe.iframe1').contents().find(".lime.explanation svg rect")[i].outerHTML.replace(oldWidth, newWidth);
+			if( ($($('iframe.iframe1').contents().find(".lime.explanation svg rect")[i].outerHTML).attr('style')) == "fill: rgb(31, 119, 180);"){
+				$('iframe.iframe1').contents().find(".lime.explanation svg rect")[i].outerHTML = $('iframe.iframe1').contents().find(".lime.explanation svg rect")[i].outerHTML.replace(oldEX, newEX);
+			}
+			}
+       
 	});
 
 	$(".closei").click(function(event){

@@ -25,8 +25,12 @@
 			<br/><br/><br/>
 			<img id="loading" src= "{% static 'ml/images/loading.gif' %}">
 		</div>
+{% if ind == 0 %}
+		<div id="inddata" style="display: none !important;">
+			{% else %}
+		<div id="inddata" style="display: block !important;">
+					{% endif %}
 
-		<div id="inddata">
 			<div class="modal-content">
 				<span class="closei">&times;</span>
 				<a id="form-text"> Introduce your data manually</a><br/><br/><br/>
@@ -152,8 +156,15 @@
 				{% endfor %}
 				{% endfor %}
 				<br/><br/>
-				<iframe name="iframe1" class="iframe1" id="encoder_iframe" height="65%" width="80%" src="{% url 'ml:oi' %}">
+				<iframe name="iframe1" class="iframe1" id="encoder_iframe" height="40%" width="80%" src="{% url 'ml:oi' %}">
 				</iframe>
+				<br/>
+				{% if button == 1 %}
+					<input type="submit" id="continue7" name="eval_back" value="Back"/><br/>
+				{% endif %}
+				{% if button == 2 %}
+					<button type="button" id="continue8" name="eval_back2" value="Back">Back</button><br/>
+				{% endif %}		
 			</div>
 
 		</div>
