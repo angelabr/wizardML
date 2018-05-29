@@ -1,0 +1,59 @@
+\begin{thebibliography}{10}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\providecommand{\doi}[1]{https://doi.org/#1}
+
+\bibitem{orange}
+Dem{\v{s}}ar, J., Zupan, B., Leban, G., Curk, T.: Orange: From experimental
+  machine learning to interactive data mining. In: European Conference on
+  Principles of Data Mining and Knowledge Discovery. pp. 537--539. Springer
+  (2004)
+
+\bibitem{cyber}
+Feng, C., Wu, S., Liu, N.: A user-centric machine learning framework for cyber
+  security operations center. In: 2017 IEEE International Conference on
+  Intelligence and Security Informatics (ISI). pp. 173--175 (July 2017)
+
+\bibitem{4}
+Feurer, M., Klein, A., Eggensperger, K., Springenberg, J., Blum, M., Hutter,
+  F.: Efficient and robust automated machine learning. In: Cortes, C.,
+  Lawrence, N.D., Lee, D.D., Sugiyama, M., Garnett, R. (eds.) Advances in
+  Neural Information Processing Systems 28, pp. 2962--2970. Curran Associates,
+  Inc. (2015)
+
+\bibitem{5}
+Gunning, D.: Explainable artificial intelligence (xai). Defense Advanced
+  Research Projects Agency (DARPA), nd Web  (2017)
+
+\bibitem{2}
+Herber, P., Kl\"{o}s, V.: A multi-robot search using lego mindstorms: An
+  embedded software design project. SIGBED Rev.  \textbf{14}(1),  61--70 (Jan
+  2017)
+
+\bibitem{Barista}
+Klemm, S., Scherzinger, A., Drees, D., Jiang, X.: Barista - a graphical tool
+  for designing and training deep neural networks. CoRR
+  \textbf{abs/1802.04626} (2018)
+
+\bibitem{pennAI}
+Olson, R.S., Sipper, M., Cava, W.L., Tartarone, S., Vitale, S., Fu, W., Holmes,
+  J.H., Moore, J.H.: A system for accessible artificial intelligence. CoRR
+  \textbf{abs/1705.00594} (2017)
+
+\bibitem{lime}
+Ribeiro, M.T., Singh, S., Guestrin, C.: "why should {I} trust you?": Explaining
+  the predictions of any classifier. In: Proceedings of the 22nd {ACM} {SIGKDD}
+  International Conference on Knowledge Discovery and Data Mining, San
+  Francisco, CA, USA, August 13-17, 2016. pp. 1135--1144 (2016)
+
+\bibitem{subcons}
+Salvatore, M., Shu, N., Elofsson, A.: The subcons webserver: A user friendly
+  web interface for state-of-the-art subcellular localization prediction.
+  Protein Science  \textbf{27}(1),  195--201 (2018)
+
+\bibitem{1}
+Tilley, E., Gray, J.: Dronely: A visual block programming language for the
+  control of drones. In: Proceedings of the SouthEast Conference. pp. 208--211.
+  ACM SE '17, ACM, New York, NY, USA (2017)
+
+\end{thebibliography}
