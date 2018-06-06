@@ -1,0 +1,9 @@
+﻿*.log
+*.synctex.gz
+*.gz
+*.blg
+*.aux
+*.bbl
+*.out
+*.soc
+*.pdf
