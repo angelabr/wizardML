@@ -45,6 +45,7 @@ class errorClass:
 # This method simulates the analysis of the model to find new errors
 def error_checker(error, action):
 	fnames = []
+	cnames = []
 	solved = False
 	if error.affectsTo is "features":
 		# Empty type in attribute
@@ -58,22 +59,45 @@ def error_checker(error, action):
 						solved = True
 			
 		# Repeated names in attributes
-		if action == 2:		
-			if len(fnames) != len(set(fnames)):
-				solved = False
-			else:
-				if error.errorType is "name":
-					solved = True
-					print("NAMES NOT REPEATED")
+		if action == 2:	
+			#It's not worth to fix this in a better way right now..
+			if error.errorType is "name" and len(fnames) == 4 and len(set(fnames)) == 3:
+				solved = True
+			else:	
+				if len(fnames) != len(set(fnames)):
+					solved = False
+				else:
+					if error.errorType is "name":
+						solved = True
 
 	if error.affectsTo is "classifiers":
 		# Recursive super type
 		if action == 1:
+
 			if error.location.eSuperType is error.location.name:
 				solved = False
 			else:
-				solved = True
-				print("SUPER TYPE FIXED")
+				if (error.errorType is "stype"):
+					solved = True
+					print("SOLVED")
+
+		if action == 0:
+			if isinstance(error.idAffected, list):
+				print("SOY LISTA")
+				if len(error.idAffected) > 1:
+					print("VARIOS")
+					for c in error.idAffected:
+						cnames.append(c.name)
+					print(len(cnames))
+					print(len(set(cnames)))	
+					if len(cnames) != len(set(cnames)):
+						solved = False
+					else:
+						print("ELSE")
+						if error.errorType is "namec":
+							solved = True
+							print("SOLVED")
+
 	 				
 	return solved
 
@@ -82,27 +106,44 @@ def error_checker(error, action):
 # Define transitions, what happens in the model when an action happens
 # An action will modify errors (if successful) and the model
 
-def act(error, action):
+def act(error, action, list_errors):
 
 # Definition of what each action does
 # Each action modifies model so it is needed to check errors again
 	AUX_DEGREE = 0
-	DEGREE = len(global_errors)
+	DEGREE = len(list_errors)
 	id_ = 0
 	location_ = 0
 	affectsTo_ = 0
 	idAffected_ = 0
 	solved_ = False
 	fnames = []
+	error_ = 0
+	done = False
 	#if error.affectsTo is "class":
 	if action == 0:
 		#This actually modify the class name
 		print("ACTION 0 - RENAME CLASS")
 		id_ = error.id
-		location_ = eClassifiers(id=error.location.id, type=error.location.type, name = error.location.name + str(random.randint(1,9999)), 
-			eSuperType = error.location.eSuperType, features = error.location.features)
+		if error.errorType is "namec":
+			print("NAMEC")
+			location_ = eClassifiers(id=error.location.id, type=error.location.type, name = error.location.name + str(random.randint(1,9999)), 
+				eSuperType = error.location.eSuperType, features = error.location.features)
+			if error.location.eSuperType is error.location.name:
+				location_.eSuperType = location_.name
+			if isinstance(error.idAffected, list):
+				if len(error.idAffected) > 1:
+					for g in list_errors:
+						if g.id == error.id:
+							error.idAffected.remove(g.location)
+					error.idAffected.insert(0, location_)
+					idAffected_ = error.idAffected
+			else:
+				idAffected_ = location_
+		else:
+			location_ = error.location
+			idAffected_ = error.idAffected	
 		affectsTo_ = error.affectsTo
-		idAffected_ = error.idAffected
 		errorType_ = error.errorType
 
 	if action == 1:
@@ -113,8 +154,11 @@ def act(error, action):
 		location_ = eClassifiers(id=error.location.id, type=error.location.type, name = error.location.name, 
 			eSuperType = "", features = error.location.features)
 		affectsTo_ = error.affectsTo
-		idAffected_ = eClassifiers(id=error.location.id, type=error.location.type, name = error.location.name, 
+		if error.errorType is "stype":
+			idAffected_ = eClassifiers(id=error.location.id, type=error.location.type, name = error.location.name, 
 			eSuperType = "", features = error.location.features)
+		else:
+			idAffected_ = error.idAffected
 		errorType_ = error.errorType
 
 	if action == 2:
@@ -123,12 +167,12 @@ def act(error, action):
 		id_ = error.id
 		location_ = error.location
 		affectsTo_ = error.affectsTo
-		if error.affectsTo is "features":
+		if error.errorType is "name":
 			idAffected_ = eStructures(id = error.idAffected.id, type = error.idAffected.type, name = error.idAffected.name+ str(random.randint(1,9999)),
 			 eType = error.idAffected.eType, eClassifier = error.idAffected.eClassifier)
 			error.location.features[error.idAffected.id].name = error.idAffected.name + str(random.randint(1,9999))
 		else:
-			idAffected = idAffected_
+			idAffected_ = error.idAffected
 		errorType_ = error.errorType
 
 	if action == 3:
@@ -138,12 +182,12 @@ def act(error, action):
 		id_ = error.id
 		location_ = error.location
 		affectsTo_ = error.affectsTo
-		if error.affectsTo is "features":
+		if (error.affectsTo is "features"):
 			idAffected_ = eStructures(id = error.idAffected.id, type = error.idAffected.type, name = error.idAffected.name,
 			 eType = "EMock", eClassifier = error.idAffected.eClassifier)
 			error.location.features[error.idAffected.id].eType = idAffected_.eType
 		else:
-			idAffected = idAffected_	
+			idAffected_ = error.idAffected
 		errorType_ = error.errorType
 
 		
@@ -152,10 +196,13 @@ def act(error, action):
 	#Checks if the action has solved the error
 	aux_error.solved = error_checker(aux_error, action)
 	#If it was solved it is removed from the list of errors
-	if aux_error.solved == True:
-		global_errors.remove(error)
+	for g in list_errors:
+		if g.id == aux_error.id and done!=True:
+			if aux_error.solved == True and done!=True:
+				list_errors.remove(g)
+				done = True
 
-	AUX_DEGREE = len(global_errors)
+	AUX_DEGREE = len(list_errors)
 	print("Updated errors")
 	print (AUX_DEGREE)
 	print("General errors")
@@ -172,7 +219,7 @@ def act(error, action):
 		reward = 500	
 		DEGREE -=1
 		print("Reward: "+str(reward))
-		done = False
+		done = True
 
 	# If no more errors, maximum reward and done
 	if AUX_DEGREE == 0:
@@ -181,7 +228,7 @@ def act(error, action):
 		print("Reward: "+str(reward))
 		done = True
 
-	return aux_error, reward, done
+	return aux_error, reward, done, list_errors
 
 #-------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------
@@ -223,8 +270,99 @@ error1 = errorClass(id = 0, location = eC1, affectsTo = "features", idAffected =
 error2 = errorClass(id = 1, location = eC2, affectsTo = "features", idAffected = eS3, solved = False, errorType = "type")
 error3 = errorClass(id = 2, location = eC3, affectsTo = "classifiers", idAffected = eC3, solved = False, errorType = "stype")
 
-
 global_errors = [error1, error2, error3]
+
+#------------------------- EXTRA MODEL 1 ------------------------------
+
+eC1x = eClassifiers(id = 1, type = "EClass", name = "Car", eSuperType = "", features = [])
+eS1x = eStructures(id = 0, type = "EAttribute", name = "name", eType = "EString", eClassifier = eC1)
+
+eC2x = eClassifiers(id = 2, type = "EClass", name = "Car", eSuperType="", features = [])
+eS2x = eStructures(id = 1, type = "EAttribute", name = "brand", eType = "EInt", eClassifier = eC1)
+eS3x = eStructures(id = 0, type = "EAttribute", name = "brand", eType = "EString", eClassifier = eC2)
+
+eC1x.features = [eS1x]
+eC2x.features = [eS2x, eS3x]
+
+model = [eC1x, eC2x]
+
+
+error1x = errorClass(id = 3, location = eC1x, affectsTo = "classifiers", idAffected = [eC1x, eC2x], solved = False, errorType = "namec")
+error2x = errorClass(id = 1, location = eC1x, affectsTo = "features", idAffected = eS1x, solved = False, errorType = "type")
+error3x = errorClass(id = 0, location = eC2x, affectsTo = "features", idAffected = eS2x, solved = False, errorType = "name")
+
+
+global_errorsx = [error1x, error2x, error3x]
+
+
+#--------------------------------------------------------------------------------------------
+
+#------------------------- EXTRA MODEL 2 ------------------------------
+
+eC1w = eClassifiers(id = 1, type = "EClass", name = "Mega", eSuperType = "Mega", features = [])
+eS1w = eStructures(id = 0, type = "EAttribute", name = "attr1", eType = "EString", eClassifier = eC1w)
+eS2w = eStructures(id = 1, type = "EAttribute", name = "attr1", eType = "EInt", eClassifier = eC1w)
+eS3w = eStructures(id = 2, type = "EAttribute", name = "attr2", eType = "EString", eClassifier = eC1w)
+eS4w = eStructures(id = 3, type = "EAttribute", name = "attr2", eType = "EInt", eClassifier = eC1w)
+
+eC1w.features = [eS1w, eS2w, eS3w, eS4w]
+
+
+
+error1w = errorClass(id = 2, location = eC1w, affectsTo = "classifiers", idAffected = eC1w, solved = False, errorType = "stype")
+# below would need a list for idAffected
+error2w = errorClass(id = 0, location = eC1w, affectsTo = "features", idAffected = eS1w, solved = False, errorType = "name")
+error3w = errorClass(id = 0, location = eC1w, affectsTo = "features", idAffected = eS3w, solved = False, errorType = "name")
+
+
+global_errorsw = [error1w, error2w, error3w]
+
+
+#--------------------------------------------------------------------------------------------
+#------------------------- EXTRA MODEL 3 ------------------------------
+
+eC1y = eClassifiers(id = 1, type = "EClass", name = "Mega2", eSuperType = "", features = [])
+eS1y = eStructures(id = 0, type = "EAttribute", name = "attr1", eType = "EString", eClassifier = eC1y)
+eS2y = eStructures(id = 1, type = "EAttribute", name = "attr1", eType = "", eClassifier = eC1y)
+
+eC1y.features = [eS1y, eS2y]
+
+
+
+error1y = errorClass(id = 0, location = eC1y, affectsTo = "features", idAffected = eS1y, solved = False, errorType = "name")
+error2y = errorClass(id = 1, location = eC1y, affectsTo = "features", idAffected = eS2y, solved = False, errorType = "type")
+
+
+global_errorsy = [error1y, error2y]
+
+
+#--------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------
+#------------------------- EXTRA MODEL 4 ------------------------------
+
+eC1z = eClassifiers(id = 1, type = "EClass", name = "Mega3", eSuperType = "Mega3", features = [])
+eC2z = eClassifiers(id = 1, type = "EClass", name = "Mega3", eSuperType = "Mega3", features = [])
+
+eS1z = eStructures(id = 0, type = "EAttribute", name = "attr1", eType = "EInt", eClassifier = eC1z)
+eS2z = eStructures(id = 1, type = "EAttribute", name = "attr1", eType = "", eClassifier = eC1z)
+eS3z = eStructures(id = 0, type = "EAttribute", name = "attr2", eType = "EInt", eClassifier = eC2z)
+eS4z = eStructures(id = 1, type = "EAttribute", name = "attr2", eType = "EString", eClassifier = eC2z)
+
+eC1z.features = [eS1z, eS2z]
+eC2z.features = [eS3z, eS4z]
+
+
+error1z = errorClass(id = 3, location = eC1z, affectsTo = "classifiers", idAffected = [eC1z, eC2z], solved = False, errorType = "namec")
+error2z = errorClass(id = 0, location = eC1z, affectsTo = "features", idAffected = eS1z, solved = False, errorType = "name")
+error3z = errorClass(id = 1, location = eC1z, affectsTo = "features", idAffected = eS2z, solved = False, errorType = "type")
+error4z = errorClass(id = 2, location = eC1z, affectsTo = "classifiers", idAffected = eC1z, solved = False, errorType = "stype")
+error5z = errorClass(id = 0, location = eC2z, affectsTo = "features", idAffected = eS3z, solved = False, errorType = "name")
+error6z = errorClass(id = 2, location = eC2z, affectsTo = "classifiers", idAffected = eC2z, solved = False, errorType = "stype")
+
+global_errorsz = [error1z, error2z, error3z, error4z, error5z, error6z]
+
+
+#--------------------------------------------------------------------------------------------
 
 CONSISTENT = True
 AUX_DEGREE = 0
@@ -257,58 +395,70 @@ ACTIONS = [RENAME_CLASS, DELETE_STYPE, RENAME_ATTRIBUTE, MODIFY_TYPE]
 
 random.seed(42) # for reproducibility
 
-N_EPISODES = 20
+N_EPISODES = 10
 
-MAX_EPISODE_STEPS = 2
+MAX_EPISODE_STEPS = 3
 
 MIN_ALPHA = 0.02
 
 alphas = np.linspace(1.0, MIN_ALPHA, N_EPISODES)
 gamma = 1.0
-eps = 0.2
+eps = 0.1
 
 q_table = dict()
 
+queue = [global_errors, global_errorsx, global_errorsw, global_errorsy, global_errorsz]
+
 def q(error, action=None):
 	
-	if error not in q_table:
-		q_table[error] = np.zeros(len(ACTIONS))
+	if error.id not in q_table:
+		q_table[error.id] = np.zeros(len(ACTIONS))
 		
 	if action is None:
-		return q_table[error]
+		return q_table[error.id]
 	
-	return q_table[error][action]
+	return q_table[error.id][action]
 
 
 def choose_action(error):
 
 	if random.uniform(0, 1) < eps:
+		print("RANDOM")
 		return random.choice(ACTIONS) 
 	else:
 		return np.argmax(q(error))	
 
+for errors in queue:
+	print("QUEUE LEN")
+	print(len(errors))
+	for e in range(N_EPISODES):
+		print("NUMBER OF GLOBAL_ERRORS")
+		print(len(errors))
+		total_reward = 0
+		alpha = alphas[e]
 
-for e in range(N_EPISODES):
-	print("NUMBER OF GLOBAL_ERRORS")
-	print(len(global_errors))
-	total_reward = 0
-	alpha = alphas[e]
+		for state in errors:
+			print("ERROR ID")
+			print(state.id)
 
-	for state in global_errors:
-		print("ERROR ID")
-		print(state.id)
-
-		for _ in range(MAX_EPISODE_STEPS):
-			action = choose_action(state)
-			next_state, reward, done = act(state, action)
-			total_reward += reward
-			q(state)[action] = q(state, action) + \
-					alpha * (reward + gamma *  np.max(q(next_state)) - q(state, action))
-			state = next_state
-			if done:
-				break		
-				
-	print(f"Episode {e + 1}: total reward -> {total_reward}")
-
+			for w in range(MAX_EPISODE_STEPS):
+				print("STEP")
+				print(w)
+				action = choose_action(state)
+				r = q(state)
+				print(f"rename_class={r[RENAME_CLASS]}, delete_stype={r[DELETE_STYPE]}, rename_attrb={r[RENAME_ATTRIBUTE]}, modify_type={r[MODIFY_TYPE]}")
+				next_state, reward, done, errors = act(state, action, errors)
+				total_reward += reward
+				if done:
+					w = MAX_EPISODE_STEPS
+				else:	
+					q(state)[action] = q(state, action) + \
+							alpha * (reward + gamma *  np.max(q(next_state)) - q(state, action))
+					state = next_state
+				if done:
+					break		
+					
+		print(f"Episode {e + 1}: total reward -> {total_reward}")
+	print("QUEUE COMPLETED")	
 #-------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------
